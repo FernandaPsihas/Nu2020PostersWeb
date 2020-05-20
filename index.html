@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>
+      Posters Something Title
+    </title>
+
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <div class="container-fluid p-0 border-bottom">
+      <div class="row">
+        <div class="col-12">
+          <nav class="navbar navbar-dark bg-dark">
+            <span class="navbar-brand mb-0 h1">
+              Poster Session X
+            </span>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid mt-5">
+      <div class="row">
+        <div class="col-12 text-center border-left">
+          <img src="../img/topologies.png" style="max-width: 100%;">
+	  <br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 text-center border-left">
+	  <br>
+	  <br>
+          <h2 class="text-left">
+            Can you identify this neutrino event?
+          </h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-8">
+          <h7>
+	    Click on your guess:
+          </h7>
+          <h3>
+            <button class="btn btn-dark border-dark guess" onclick="RevealScoreNue()">
+              Electron Neutrino
+            </button>
+            <button class="btn btn-dark border-dark guess" onclick="RevealScoreNC()">
+              Neutral Current
+            </button>
+            <button class="btn btn-dark border-dark guess" onclick="RevealScoreNuMu()">
+              Muon Neutrino
+            </button>
+          </h3>
+        </div>
+        <div class="col-4">
+          <h2 class="text-right">
+            <span class="text-right">
+              <button class="btn btn-light border" onclick="Cycle()">
+                <i class="fa fa-sync-alt"></i> Show me another neutrino!
+              </button>
+            </span>
+          </h2>
+        </div>
+      </div>      
+    </div>
+
+    <div class="container-fluid mt-5">
+      <div class="row">
+        <div class="col-12 text-center">
+          <h5 class="text-left">
+            Current Event   <span id="true" class="badge badge-info"></span>
+          </h5>
+          <h5 class="text-left">
+             <span id="tg">You guessed:</span><span id="guess" class="badge badge-info"></span>
+          </h5>
+          <h5 class="text-left">
+             <span id="tc"> Our Neural Networks say:</span><span id="score" class="badge badge-info"></span>			              <img id="evd" style="max-width: 100%;">
+          </h5>
+ 	  <br>
+          <br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 text-center">
+          <h5>
+            Created and maintained by Micah Groh (<a href="mailto:grohmc@fnal.gov">grohmc@fnal.gov</a>).
+          </h5>
+	  <br>
+          <br>
+        </div>
+      </div>
+    </div>
+
+    <! -- Page-specific javascript -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+    <script>
+      // ..................................................
+      function DisplayRandomEVD(evds)
+      {
+        // Get a random EVD
+        $('button.guess').prop('disabled', false);
+        currentEVD = evds[Math.floor(Math.random() * evds.length)];
+        $('img#evd').attr('src', currentEVD.filename);
+        $('#score').html('');
+        $('#guess').html('');
+        $('#true').html('');
+        $('#tg').hide();
+        $('#tc').hide();
+      } 
+      // ..................................................
+      function Cycle()
+      {
+        // Perform Ajax request, fetch evds.json
+        $.ajax({
+            url: '../data/finalevds.json',
+            type: 'get',
+            success: function(respose){
+              DisplayRandomEVD(respose);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+              console.log('An error occurred :(');
+            }
+        });
+      }
+
+      // .................................................
+      function DisableButtons()
+      {
+        $('button.guess').prop('disabled', true);
+      }
+
+      // ..................................................
+      function RevealScore()
+      { 
+        $('#score').html('  ' + currentEVD.cvn_score);
+        $('#true').html('  ' + currentEVD.tru_score);
+      }
+      // ..................................................
+      function RevealScoreNue()
+      { 
+        DisableButtons();
+        $('#score').html('  ' + currentEVD.cvn_score);
+        $('#true').html('  ' + currentEVD.tru_score);
+        $('#guess').html(' Electron Neutrino');
+        $('#tg').show();
+        $('#tc').show();
+      }
+      // ..................................................
+      function RevealScoreNC()
+      { 
+        DisableButtons();
+        $('#score').html('  ' + currentEVD.cvn_score);
+        $('#true').html('  ' + currentEVD.tru_score);
+        $('#guess').html(' Neutral Current');
+        $('#tg').show();
+        $('#tc').show();
+      }
+      // ..................................................
+      function RevealScoreNuMu()
+      { 
+        DisableButtons();
+        $('#score').html('  ' + currentEVD.cvn_score);
+        $('#true').html('  ' + currentEVD.tru_score);
+        $('#guess').html(' Muon Neutrino');
+        $('#tg').show();
+        $('#tc').show();
+      }
+
+      // When the page has loaded, execute everything inside the function()
+      $( document ).ready(function(){
+        currentEVD = {}
+        Cycle();
+      });
+    </script>
+
+  </body>
+</html>
+
