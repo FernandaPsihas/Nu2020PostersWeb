@@ -1,16 +1,62 @@
 [
-  {
-    "number": "01"
-    "filename": "img/rasp_evt_xzyx-proj_14109_47_271884_4_numi_zoom.png",
-    "mini-abstract": "Electron Neutrino",
-    "author": "Electron Neutrino",
-    "youtube link": "https://www.youtube.com/embed/Xd9C97-wlMs",
-  },
-  {
-    "number": "02"
-    "filename": "img/evd_xzyz-proj_fhc_nonswap_r16549_s16_c0_e18_sl15_zoom.png",
-    "mini-abstract": "Muon Neutrino",
-    "author": "Muon Neutrino",
-    "youtube link": "https://www.youtube.com/embed/Xd9C97-wlMs",
-  }
+{
+ "posterID": "001",
+ "authorName": "Alec Habig",
+ "otherNames": "",
+ "collaboration": "DUNE",
+ "category": "astro",
+ "filename": "img/dune-snnu.png", 
+ "smallFilename": "img/dune-snnu-sm.png", 
+ "pdfname": "pdf/dune-snnu.pdf",
+ "posterTitle": "Supernova Neutrino Detection in DUNE",
+ "videoLink": "https://www.youtube.com/embed/uQKlTWKKdqM",
+ "presentLink": "https://nu2020-hubs.org/",
+ "abstract": "some text pulled from indico, to be rendered",
+ "miniAbstract": "DUNE will see thousands of 10 MeV neutrino interactions from the next galactic core collapse SN."
+},
+{
+ "posterID": "002",
+ "authorName": "Alec Habig",
+ "otherNames": "Maury Goodman",
+ "collaboration": "NOvA",
+ "category": "lbl",
+ "filename": "img/nova-icrc17.png", 
+ "smallFilename": "img/nova-icrc17-sm.png", 
+ "pdfname": "pdf/nova-icrc17.pdf",
+ "posterTitle": "Neutrino Oscillations in the NOvA Experiment",
+ "videoLink": "https://www.youtube.com/embed/uQKlTWKKdqM",
+ "presentLink": "https://nu2020-hubs.org/",
+ "abstract": "some text pulled from indico, to be rendered",
+ "miniAbstract": "NOvA thought we had observed non-maximal &nu;<sub>23</sub> mixing in the demonic eyes plot shown below."
+},
+{
+ "posterID": "003",
+ "authorName": "Alec Habig",
+ "otherNames": "Jan Zirnstein",
+ "collaboration": "NOvA and SNEWS",
+ "category": "astro",
+ "filename": "img/nova-snews.png", 
+ "smallFilename": "img/nova-snews-sm.png", 
+ "pdfname": "pdf/nova-snews.pdf",
+ "posterTitle": "Integration of the Supernova Early Warning System with the NOvA Trigger",
+ "videoLink": "https://www.youtube.com/embed/uQKlTWKKdqM",
+ "presentLink": "https://nu2020-hubs.org/",
+ "abstract": "some text pulled from indico, to be rendered",
+ "miniAbstract": "NOvA will trigger a dead-time free readout for time periods when SNEWS says there might have been a galactic core-collapse SN."
+},
+{
+ "posterID": "004",
+ "otherNames": "",
+ "authorName": "Alec Habig",
+ "collaboration": "SNEWS",
+ "category": "astro",
+ "filename": "img/snews-icrc19.png", 
+ "smallFilename": "img/snews-icrc19-sm.png", 
+ "pdfname": "pdf/snews-icrc19.pdf",
+ "posterTitle": "SNEWS 2.0: Supernova Neutrinos in the Multi-Messenger Era",
+ "videoLink": "https://www.youtube.com/embed/uQKlTWKKdqM",
+ "presentLink": "https://nu2020-hubs.org/",
+ "abstract": "some text pulled from indico, to be rendered",
+ "miniAbstract": "Dragging SNEWS kicking and screaming into the Century of the Fruit Bat."
+}
 ]
