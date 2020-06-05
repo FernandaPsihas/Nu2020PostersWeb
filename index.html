@@ -20,6 +20,39 @@
     overflow:scroll;
     background-color:#f1f1f1;
   }
+  #indexInput {
+    background-image: url('css/searchicon.png'); /* Add a search icon to input */
+    background-position: 10px 12px; /* Position the search icon */
+    background-repeat: no-repeat; /* Do not repeat the icon image */
+    width: 100%; /* Full-width */
+    font-size: 16px; /* Increase font-size */
+    padding: 12px 20px 12px 40px; /* Add some padding */
+    border: 1px solid #ddd; /* Add a grey border */
+    margin-bottom: 12px; /* Add some space below the input */
+  }
+
+  #indexUL {
+    /* Remove default list styling */
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  #indexUL li div {
+    border: 1px solid #ddd; /* Add a border to all links */
+    margin-top: -1px; /* Prevent double borders */
+    background-color: #f6f6f6; /* Grey background color */
+    padding: 12px; /* Add some padding */
+    text-decoration: none; /* Remove default text underline */
+    font-size: 18px; /* Increase the font-size */
+    color: black; /* Add a black text color */
+    display: block; /* Make it into a block element to fill the whole list */
+  }
+
+  #indexUL li div:hover {
+    background-color: #eee; /* Add a hover effect to all divs */
+}
+
   </style>
 
   </head>
@@ -47,13 +80,30 @@
 	<!-- Column for Index Display -->
         <div class="indexBox text-center border-left">
 	  <p>
-	    <button class="ajax-tippy" onclick="Cycle(1,0)">
+	    <button onclick="Cycle(true,0)">
               <i class="fa fa-sync-alt"></i> See a random poster
 	    </button>
 	  </p>
 
 	  <!-- The actual index: html is built up by script buildIndex() -->
           <h4><strong>Session Index</strong></h4> 
+	  <input type="text" id="indexInput" onkeyup="indexSearchFunction()" placeholder="Search for titles or presenters">
+	  <select id="sessionSelect" onclick="filterSession()">
+	    <option value="0">All Sessions:</option>
+	    <option value="1">Session 1</option>
+	    <option value="2">Session 2</option>
+	    <option value="3">Session 3</option>
+	    <option value="4">Session 4</option>
+	  </select>
+	  <select id="trackSelect" onclick="filterTrack()">
+	    <option value="0">All Tracks:</option>
+	    <option value="astro">Astrophysics</option>
+	    <option value="lbl">Long Baseline</option>
+	    <option value="react">Reactors</option>
+	    <option value="2b">Double-Beta</option>
+	    <option value="solar">Solar Neutrinos</option>
+	    <option value="th">Theory</option>
+	  </select>
 	  <div id=posterIndex></div>
         </div>
 	
@@ -61,14 +111,15 @@
         <div class="col-8 text-center border-left">
 	  <h3>
 	    <div id=posterID></div>
-	    <a id="presentLink"><span class="badge badge-info">Click here during the poster session to get to the presentation</span></a>
+	    <a id="presentLink"><span class="badge badge-info">Click here to Enter Live Poster Session</span></a>
 	  </h3>
+	  <h5><div id=sessionText></div></h5>
 	  <h3><strong><div id=posterTitle></div></strong></h3>
 	  <h4><div id=authors></div></h4>
 	  <h4><div id=collaboration></div></h4>
 	  <h4><em><div id=miniAbstract></div></em></h4>
           <!-- was 560x315 -->
-	  <iframe id=videoLink width="720" height="405" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	  <div id=videoLink></div>
 	  <a id="pdf"><img id="poster" style="max-width: 0.9column-width;"></a>
  	  <br>
         </div>
@@ -95,6 +146,13 @@
     <script>
       // Our scripts, rather than the libraries loaded above
 
+      // global variables
+      // for index display state
+      var searchState = [];
+      var sessionState = [];
+      var trackState = [];
+      var posterList = [];
+
       // Display a random thing in the array
       function DisplayRandomEVD(evds)
       {
@@ -119,6 +177,7 @@
         $('a#presentLink').attr('href',currentEVD.presentLink);
         $('#posterTitle').html(currentEVD.posterTitle);
         $('#miniAbstract').html(currentEVD.miniAbstract);
+        $('#sessionText').html('(Poster is in session #'+currentEVD.session+')');
         // need some logic to add commas etc
         if (currentEVD.otherNames.length > 0) {
           $('#authors').html(currentEVD.authorName + ', ' + currentEVD.otherNames);
@@ -130,36 +189,67 @@
         } else {
           $('#collaboration').html('');
         }
-        $('iframe#videoLink').attr('src', currentEVD.videoLink);
+        if (currentEVD.videoLink) { 
+          $('#videoLink').html('<iframe src=\"' + currentEVD.videoLink + '\" width=\"720\" height=\"405\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>');
+        } else {
+          $('#videoLink').html('<hr><br><h4>No video available for this poster</h4><hr>');
+        }
       }
 
       // Build an index element
       function buildIndex(evds)
       {
-        // indexString is the collection of html we're building
-        // i is an index
-        var indexString="", i=0;
-        // build a block of html for each poster in the index, by building up 
-        // a string.  This is messy.  Each poster should probably be an
-        // element of some sort, but this is a start
+        var i = 0;
+        // there is a posterIndex div declared in the html, point to it
+        var posterIndex = document.getElementById('posterIndex');
+        // if we already have a child list, delete it
+        // else we'll keep growing
+        var element = document.getElementById("indexUL");
+        if (element) posterIndex.removeChild(element);
+        // reset the display state arrays
+        searchState.length = 0;
+	sessionState.length = 0;
+	trackState.length = 0;
+
+        // build a new list which we will append to it
+        var indexUL = document.createElement("UL");
+        indexUL.id = "indexUL";
+        posterIndex.appendChild(indexUL);
+
         for (i=0; i<evds.length; i++)
 	{
-	 // Make a button
-	 indexString += "<button class=\"ajax-tippy\" onclick=\"Cycle(0,"+ i + ")\" data-thumbnail=\"" + evds[i].smallFilename + "\" ><i class=\"fa fa-sync-alt\"></i>";
-	 indexString += " Poster #" + evds[i].posterID + ' ';
-	 indexString += "</button>";
+	  // loop over posters, make an LI of them each, stick it in the UL
+	  var posterLI = document.createElement("LI");
+          indexUL.appendChild(posterLI);
 
-         // Show the title
-	 indexString +="<p><strong>" + evds[i].posterTitle + "</strong><br>";
+	  // stick on a div
+          var posterDIV = document.createElement("DIV");
+	  posterDIV.dataset.session = evds[i].session;
+	  posterDIV.dataset.category = evds[i].category;
+	  posterLI.appendChild(posterDIV);
 
-         // Show the author
-         indexString += "<em>" + evds[i].authorName + "</em></p>";	 
+	  // Make html for that div.  Still doing this as a astring
+	  var indexString = "";
+	  indexString += "<button class=\"ajax-tippy\" onclick=\"Cycle(false,"+ i + ")\" data-thumbnail=\"" + evds[i].smallFilename + "\" ><i class=\"fa fa-sync-alt\"></i>";
+	  indexString += " Poster #" + evds[i].posterID + ' ';
+	  indexString += "</button>";
 
-         // Show a thumbnail
-         // indexString += "<img src=\"" + evds[i].smallFilename + "\" onclick=\"Cycle(0,"+ i + ")\"><br><hr>";	 
+          // Show the title
+	  indexString +="<p><strong>" + evds[i].posterTitle + "</strong><br>";
 
+          // Show the author
+          indexString += "<em>" + evds[i].authorName + "</em></p>";
+
+	  // Stick this html into the div
+          // Might need to use insertAdjacentHTML() instead
+	  posterDIV.innerHTML += indexString;
+
+	  // while we're doing this, make a global array for selection
+	  // default is all are "go" to display
+          searchState.push(true);
+	  sessionState.push(true);
+	  trackState.push(true);
 	}
-	$('#posterIndex').html(indexString);
       }
 
       // hover over code for things in #posterIndex of class .ajax-tippy
@@ -173,10 +263,6 @@
           instance._src = null;
           instance._error = null;
         },
-
-//	content(reference) {
-//	  return reference.getAttribute('data-thumbnail');
-//        },
 
 	onShow(instance) {
           // Code here is executed every time the tippy shows
@@ -221,17 +307,108 @@
 	},
       });
 
+      function indexSearchFunction() 
+      {
+        // Declare variables
+        var input, filter, ul, li, div, i, txtValue;
+        input = document.getElementById('indexInput');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("indexUL");
+        li = ul.getElementsByTagName('li');
+
+        // Loop through all list items, and hide those who don't match the search query
+        for (i = 0; i < li.length; i++) 
+	{
+          div = li[i].getElementsByTagName("div")[0];
+          txtValue = div.textContent || div.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) 
+	  {
+            searchState[i] = true;
+          } else {
+            searchState[i] = false;
+          }
+       }
+       displayPosters(ul);
+     }
+
+      // hide the non-selected-by-session posters
+      function filterSession()
+      {
+        var selected = document.getElementById("sessionSelect").value;
+        var ul = document.getElementById("indexUL");
+        var li = ul.getElementsByTagName('li');
+
+	// Loop through all list items, and hide those who don't match the search query
+	var i;
+	for (i = 0; i < li.length; i++)
+        {
+          var div = li[i].getElementsByTagName("div")[0];
+	  if ((div.dataset.session == selected) || (selected == 0)) {
+	    sessionState[i] = true;
+	  } else {
+	    sessionState[i] = false;
+          }
+        }
+        displayPosters(ul);
+      }
+
+      // hide the non-selected-by-track posters
+      function filterTrack()
+      {
+        var selected = document.getElementById("trackSelect").value;
+        var ul = document.getElementById("indexUL");
+        var li = ul.getElementsByTagName('li');
+
+	// Loop through all list items, and hide those who don't match the search query
+	var i;
+	for (i = 0; i < li.length; i++)
+        {
+          var div = li[i].getElementsByTagName("div")[0];
+	  if ((div.dataset.category == selected) || (selected == 0)) {
+            trackState[i] = true;
+	  } else {
+            trackState[i] = false;
+          }
+        }
+	displayPosters(ul);
+      }
+
+
+      // check if we're displaying the poster in the index, and set it
+      function displayPosters(ul)
+      {
+        var li = ul.getElementsByTagName('li');
+
+	// Loop through all list items, and hide those who don't match the search query
+	var i;
+	for (i = 0; i < li.length; i++)
+        {
+	  if (searchState[i] && sessionState[i] && trackState[i]) {
+            li[i].style.display = "";
+	  } else {
+	    li[i].style.display = "none";
+          }
+        }
+      }
+
       // Reload data, display a random one if random is true, else thisOne
       function Cycle(random,thisOne)
+      {
+        if (random) { DisplayRandomEVD(posterList);}
+        else {DisplaySomeEVD(posterList,thisOne);}
+      }
+
+      // Load data, display a random one
+      function LoadData()
       {
         // Perform Ajax request, fetch posters.json
         $.ajax({
             url: 'data/posters.json',
             type: 'get',
             success: function(respose){
+	      posterList = respose;
 	      buildIndex(respose);
-              if (random) { DisplayRandomEVD(respose);}
-              else {DisplaySomeEVD(respose,thisOne);}
+              DisplayRandomEVD(respose);
             },
             error: function (xhr, ajaxOptions, thrownError) {
               console.log('An error occurred :(');
@@ -242,7 +419,7 @@
       // When the page has loaded, execute everything inside the function()
       $( document ).ready(function(){
         currentEVD = {}
-        Cycle(1,0);
+        LoadData();
       });
     </script>
 

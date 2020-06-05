@@ -4,6 +4,7 @@ from optparse import OptionParser
 import json
 from io import StringIO
 from urllib.parse import urlparse
+import os
 
 Debug = False;
 Verbose = False;
@@ -48,8 +49,59 @@ class Poster:                 # a poster data structure
             'abstract': self.abstract,
             'miniAbstract': self.miniAbstract,
             'session': self.session
+            }, indent=2, sort_keys=True)
 
-            },indent=2)
+# grab poster pdf
+def fetchpdf(url,pdfname):
+    global Debug
+    global Verbose
+    if (Verbose): 
+        print('Fetching ',url)
+        cmd = "wget " + url + " -O " + pdfname
+    else: 
+        cmd = "wget -o /dev/null " + url + " -O " + pdfname
+    return os.system(cmd)
+
+
+def dealWithPdf(poster):
+    global Debug
+    global Verbose
+
+    url = poster.pdfname
+    posterID = poster.posterID
+    # places to put stuff.  relative to index.html's subdir
+    # eg, data/posterCsv2Json.py --verbose data/newdata.csv data/newdata.json
+    # should make these runtime parameters
+    tmpdir = "/tmp/"
+    imgdir = "img/"
+    pdfdir = "pdf"   # if we keep them.  Prob. leave on indico instead
+
+    # form image filenames
+    pdfName = tmpdir + "posterPDF-" + posterID + ".pdf"
+    imageName = "posterPDF-" + posterID + ".png"
+    imageName_sm = "posterPDF-" + posterID + "-sm.png"
+
+    # grab it
+    fetchError = fetchpdf(url,pdfName)
+    if (fetchError):
+        print("fetchpdf error ",fetchError)
+        exit(fetchError)
+    # got it ok
+    if (Debug):
+        print("got pdf ok")
+    
+    # make pngs
+    cmd = "pdf/posterPdfToPng.sh " + pdfName
+    os.system(cmd)  # should check for error
+    # move image files to the right place
+    os.system("mv " + tmpdir + imageName + " " + imgdir)
+    os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
+    # delete pdf from tmpdir
+    os.system("rm " + pdfName)
+    # fill values in the poster object
+    poster.filename = imgdir + imageName
+    poster.smallFilename = imgdir + imageName_sm
+
 
 #Do it
 def main():
@@ -129,6 +181,7 @@ def main():
                     # above, so that we can parse it manually?
 
                 # go grab pdf, shell out concert to png
+                if (thisPoster.pdfname != ""): dealWithPdf(thisPoster)
                 # same with mp4s, upload to outube, get back link?
 
                 # write out and store the poster
@@ -143,4 +196,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
