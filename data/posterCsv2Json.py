@@ -88,14 +88,14 @@ class Poster:                 # a poster data structure
             }, indent=2, sort_keys=True)
 
 # grab poster pdf
-def fetchpdf(url,pdfname):
+def fetchfile(url,filename):
     global Debug
     global Verbose
     if (Verbose):
         print('Fetching ',url)
-        cmd = "wget " + url + " -O " + pdfname
+        cmd = "wget " + url + " -O " + filename
     else:
-        cmd = "wget -o /dev/null " + url + " -O " + pdfname
+        cmd = "wget -o /dev/null " + url + " -O " + filename
     return os.system(cmd)
 
 
@@ -137,6 +137,28 @@ def dealWithPdf(poster):
     # fill values in the poster object
     poster.filename = imgdir + imageName
     poster.smallFilename = imgdir + imageName_sm
+
+
+def dealWithVideo(poster):
+    global Debug
+    global Verbose
+
+    url = thisPoster.videoName
+    posterID = poster.posterID
+    videoFilename = url.split('/')[-1]
+    # places to put stuff.  relative to index.html's subdir
+    # eg, data/posterCsv2Json.py --verbose data/newdata.csv data/newdata.json
+    filedir = "vid/"
+    videoName = filedir + "posterVideo-" + posterID + ".mp4"
+
+    # grab it
+    fetchError = fetchpdf(url,videoFilename)
+    if (fetchError):
+        print("fetchpdf error ",fetchError)
+        exit(fetchError)
+    # got it ok
+    if (Debug):
+        print("got video ok")
 
 
 #Do it
