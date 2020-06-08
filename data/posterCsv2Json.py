@@ -57,6 +57,7 @@ class Poster:                 # a poster data structure
         self.posterTitle = ''
         self.videoLink = ''
         self.videoName = ''
+        self.videoFileName = ''
         self.presentLink = ''
         self.abstract = ''
         self.miniAbstract = ''
@@ -118,7 +119,7 @@ def dealWithPdf(poster):
     imageName_sm = "posterPDF-" + posterID + "-sm.png"
 
     # grab it
-    fetchError = fetchpdf(url,pdfName)
+    fetchError = fetchfile(url,pdfName)
     if (fetchError):
         print("fetchpdf error ",fetchError)
         exit(fetchError)
@@ -145,16 +146,16 @@ def dealWithVideo(poster):
 
     url = thisPoster.videoName
     posterID = poster.posterID
-    videoFilename = url.split('/')[-1]
+    poster.videoFilename = url.split('/')[-1]
     # places to put stuff.  relative to index.html's subdir
     # eg, data/posterCsv2Json.py --verbose data/newdata.csv data/newdata.json
     filedir = "vid/"
     videoName = filedir + "posterVideo-" + posterID + ".mp4"
 
     # grab it
-    fetchError = fetchpdf(url,videoFilename)
+    fetchError = fetchfile(url,poster.videoFilename)
     if (fetchError):
-        print("fetchpdf error ",fetchError)
+        print("fetchfile error ",fetchError)
         exit(fetchError)
     # got it ok
     if (Debug):
@@ -240,6 +241,7 @@ def main():
 
                 # go grab pdf, shell out concert to png
                 if (thisPoster.pdfname != ""): dealWithPdf(thisPoster)
+                if (thisPoster.videoName != ""): dealWithVideo(thisPoster)
 
                 if ( UploadVideos ):
                     try:
