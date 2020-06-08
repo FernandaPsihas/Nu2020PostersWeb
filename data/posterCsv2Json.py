@@ -182,6 +182,9 @@ def main():
 
                 # go grab pdf, shell out concert to png
                 if (thisPoster.pdfname != ""): dealWithPdf(thisPoster)
+                # if no pdf, skip to next thing so empty crap does
+                # not end in the json
+                else: continue
                 # same with mp4s, upload to outube, get back link?
 
                 # write out and store the poster
