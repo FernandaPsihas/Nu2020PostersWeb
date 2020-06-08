@@ -5,9 +5,44 @@ import json
 from io import StringIO
 from urllib.parse import urlparse
 import os
+# upload-required includes
+import argparse
+import http.client as httplib
+import httplib2
+import random
+import time
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 Debug = False;
 Verbose = False;
+UploadVideos = False;
+
+# Explicitly tell the underlying HTTP transport library not to retry, since
+# we are handling retry logic ourselves.
+httplib2.RETRIES = 1
+# Maximum number of times to retry before giving up.
+MAX_RETRIES = 10
+# Always retry when these exceptions are raised.
+RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
+  httplib.IncompleteRead, httplib.ImproperConnectionState,
+  httplib.CannotSendRequest, httplib.CannotSendHeader,
+  httplib.ResponseNotReady, httplib.BadStatusLine)
+RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
+
+# The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
+# the OAuth 2.0 information for this application, including its client_id and
+CLIENT_SECRETS_FILE = 'client_secret.json'
+
+SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
+API_SERVICE_NAME = 'youtube'
+API_VERSION = 'v3'
+VALID_PRIVACY_STATUSES = ('public', 'private', 'unlisted')
+
 
 class Poster:                 # a poster data structure
     def __init__(self):
@@ -26,6 +61,7 @@ class Poster:                 # a poster data structure
         self.abstract = ''
         self.miniAbstract = ''
         self.session = ''
+        self.youtubeID = ''
 
 #    def __repr__(self):
 #        return "<Test a:%s b:%s>" % (self.a, self.b)
@@ -55,10 +91,10 @@ class Poster:                 # a poster data structure
 def fetchpdf(url,pdfname):
     global Debug
     global Verbose
-    if (Verbose): 
+    if (Verbose):
         print('Fetching ',url)
         cmd = "wget " + url + " -O " + pdfname
-    else: 
+    else:
         cmd = "wget -o /dev/null " + url + " -O " + pdfname
     return os.system(cmd)
 
@@ -89,7 +125,7 @@ def dealWithPdf(poster):
     # got it ok
     if (Debug):
         print("got pdf ok")
-    
+
     # make pngs
     cmd = "pdf/posterPdfToPng.sh " + pdfName
     os.system(cmd)  # should check for error
@@ -182,6 +218,12 @@ def main():
 
                 # go grab pdf, shell out concert to png
                 if (thisPoster.pdfname != ""): dealWithPdf(thisPoster)
+
+                if ( UploadVideos ):
+                    try:
+                        initialize_upload(youtube, thisPoster)
+                    except (HttpError, e):
+                        print ('An HTTP error %d occurred:\n%s' % (e.resp.status, e.content))
                 # if no pdf, skip to next thing so empty crap does
                 # not end in the json
                 else: continue
@@ -196,6 +238,91 @@ def main():
             outfile.close
         infile.close
         if (Verbose): print("non-header rows: ",rownum)
+
+# UPLOAD FUNCTIONS #
+# Authorize the request and store authorization credentials.
+def get_authenticated_service():
+  flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+  credentials = flow.run_console()
+  return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
+
+def initialize_upload(youtube, thisposter):
+  tags = None
+#  if thisposter.keywords:
+#    tags = thisposter.keywords.split(',')
+  body=dict(
+    snippet=dict(
+      title=thisposter.miniAbstract,
+      description=thisposter.authorName,
+      # description = 'Poster by {}\n\n {}'.format(thisposter.authorName, thisposter.miniAbstract)
+      tags=tags,
+      categoryId=thisposter.category
+    ),
+    status=dict(
+      privacyStatus="private"
+    )
+  )
+
+  # description = 'Poster by {name} {line break} {abstract}'  <-- psuedo code
+  # description = 'Poster by {}\n\n {}'.format(thisposter.authorName, thisposter.miniAbstract)
+  #
+
+  # Call the API's videos.insert method to create and upload the video.
+  insert_request = youtube.videos().insert(
+    part=','.join(body.keys()),
+    body=body,
+    # The chunksize parameter specifies the size of each chunk of data, in
+    # bytes, that will be uploaded at a time. Set a higher value for
+    # reliable connections as fewer chunks lead to faster uploads. Set a lower
+    # value for better recovery on less reliable connections.
+    #
+    # Setting 'chunksize' equal to -1 in the code below means that the entire
+    # file will be uploaded in a single HTTP request. (If the upload fails,
+    # it will still be retried where it left off.) This is usually a best
+    # practice, but if you're using Python older than 2.6 or if you're
+    # running on App Engine, you should set the chunksize to something like
+    # 1024 * 1024 (1 megabyte).
+    media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
+  )
+
+  resumable_upload(insert_request, thisposter)
+
+# This method implements an exponential backoff strategy to resume a
+# failed upload.
+def resumable_upload(request, thisposter):
+  response = None
+  error = None
+  retry = 0
+  while response is None:
+    try:
+      print ('Uploading file...')
+      status, response = request.next_chunk()
+      if response is not None:
+        if 'id' in response:
+          print ('Video id "%s" was successfully uploaded.' % response['id'])
+          thisposter.youtubeID=response['id']
+          thisposter.videoLink="https://www.youtube.com/watch?v="+thisposter.youtubeID
+        else:
+          exit('The upload failed with an unexpected response: %s' % response)
+    except (HttpError, e):
+      if e.resp.status in RETRIABLE_STATUS_CODES:
+        error = 'A retriable HTTP error %d occurred:\n%s' % (e.resp.status,
+                                                             e.content)
+      else:
+        raise
+    except (RETRIABLE_EXCEPTIONS, e):
+      error = 'A retriable error occurred: %s' % e
+
+    if error is not None:
+      print (error)
+      retry += 1
+      if retry > MAX_RETRIES:
+        exit('No longer attempting to retry.')
+
+      max_sleep = 2 ** retry
+      sleep_seconds = random.random() * max_sleep
+      print ('Sleeping %f seconds and then retrying...' % sleep_seconds)
+      time.sleep(sleep_seconds)
 
 if __name__ == "__main__":
     main()
