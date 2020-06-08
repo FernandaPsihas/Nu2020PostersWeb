@@ -174,8 +174,8 @@ def main():
                         # take the last link ending in .pdf to be the poster
                         if(link.path[-4:]=='.pdf'):
                             thisPoster.pdfname = link.geturl()
-                        # take the last link ending in .mp4 to be the video
-                        if(link.path[-4:]=='.mp4'):
+                        # take the last link ending in .mp4 or .mov to be the video
+                        if ((link.path[-4:]=='.mp4') or (link.path[-4:]=='.mov')):
                             thisPoster.videoName = link.geturl()
                     # should throw exception on links that aren't one of the
                     # above, so that we can parse it manually?
