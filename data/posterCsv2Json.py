@@ -223,7 +223,11 @@ def resumable_upload(request, thisposter):
         if 'id' in response:
           print ('Video id "%s" was successfully uploaded.' % response['id'])
           thisposter.youtubeID=response['id']
-          thisposter.videoLink="https://www.youtube.com/watch?v="+thisposter.youtubeID
+# this is the plain youtube webpage
+#          thisposter.videoLink="https://www.youtube.com/watch?v="+thisposter.youtubeID
+# this is the embed link we shove into the iframe alter
+          thisposter.videoLink="https://www.youtube.com/embed/"+thisposter.y\
+outubeID
         else:
           exit('The upload failed with an unexpected response: %s' % response)
     except (HttpError, e):
