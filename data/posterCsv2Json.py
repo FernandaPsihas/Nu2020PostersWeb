@@ -160,13 +160,94 @@ def dealWithVideo(poster):
     if (Debug):
         print("got video ok")
 
+# UPLOAD FUNCTIONS #
+# Authorize the request and store authorization credentials.
+def get_authenticated_service():
+  flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+  credentials = flow.run_console()
+  return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
+
+def initialize_upload(youtube, thisposter):
+  tags = None
+#  if thisposter.keywords:
+#    tags = thisposter.keywords.split(',')
+  body=dict(
+    snippet=dict(
+      title=thisposter.miniAbstract,
+      description=thisposter.authorName,
+      # description = 'Poster by {}\n\n {}'.format(thisposter.authorName, thisposter.miniAbstract)
+      tags=tags,
+      categoryId=thisposter.category
+    ),
+    status=dict(
+      privacyStatus="private"
+    )
+  )
+
+  # Call the API's videos.insert method to create and upload the video.
+  insert_request = youtube.videos().insert(
+    part=','.join(body.keys()),
+    body=body,
+    # The chunksize parameter specifies the size of each chunk of data, in
+    # bytes, that will be uploaded at a time. Set a higher value for
+    # reliable connections as fewer chunks lead to faster uploads. Set a lower
+    # value for better recovery on less reliable connections.
+    #
+    # Setting 'chunksize' equal to -1 in the code below means that the entire
+    # file will be uploaded in a single HTTP request. (If the upload fails,
+    # it will still be retried where it left off.) This is usually a best
+    # practice, but if you're using Python older than 2.6 or if you're
+    # running on App Engine, you should set the chunksize to something like
+    # 1024 * 1024 (1 megabyte).
+    media_body=MediaFileUpload(thisposter.videoFileName, chunksize=-1, resumable=True)
+  )
+
+  resumable_upload(insert_request, thisposter)
+
+# This method implements an exponential backoff strategy to resume a
+# failed upload.
+def resumable_upload(request, thisposter):
+  response = None
+  error = None
+  retry = 0
+  while response is None:
+    try:
+      print ('Uploading file...')
+      status, response = request.next_chunk()
+      if response is not None:
+        if 'id' in response:
+          print ('Video id "%s" was successfully uploaded.' % response['id'])
+          thisposter.youtubeID=response['id']
+          thisposter.videoLink="https://www.youtube.com/watch?v="+thisposter.youtubeID
+        else:
+          exit('The upload failed with an unexpected response: %s' % response)
+    except (HttpError, e):
+      if e.resp.status in RETRIABLE_STATUS_CODES:
+        error = 'A retriable HTTP error %d occurred:\n%s' % (e.resp.status,
+                                                             e.content)
+      else:
+        raise
+    except (RETRIABLE_EXCEPTIONS, e):
+      error = 'A retriable error occurred: %s' % e
+
+    if error is not None:
+      print (error)
+      retry += 1
+      if retry > MAX_RETRIES:
+        exit('No longer attempting to retry.')
+
+      max_sleep = 2 ** retry
+      sleep_seconds = random.random() * max_sleep
+      print ('Sleeping %f seconds and then retrying...' % sleep_seconds)
+      time.sleep(sleep_seconds)
 
 #Do it
 def main():
     global Debug
     global Verbose
 
-    youtube = get_authenticated_service()
+    if ( UploadVideos ):
+        youtube = get_authenticated_service()
 
     # a list/array of posters
     posterList = []
@@ -264,90 +345,6 @@ def main():
         infile.close
         if (Verbose): print("non-header rows: ",rownum)
 
-# UPLOAD FUNCTIONS #
-# Authorize the request and store authorization credentials.
-def get_authenticated_service():
-  flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-  credentials = flow.run_console()
-  return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
-
-def initialize_upload(youtube, thisposter):
-  tags = None
-#  if thisposter.keywords:
-#    tags = thisposter.keywords.split(',')
-  body=dict(
-    snippet=dict(
-      title=thisposter.miniAbstract,
-      description=thisposter.authorName,
-      # description = 'Poster by {}\n\n {}'.format(thisposter.authorName, thisposter.miniAbstract)
-      tags=tags,
-      categoryId=thisposter.category
-    ),
-    status=dict(
-      privacyStatus="private"
-    )
-  )
-
-  # description = 'Poster by {name} {line break} {abstract}'  <-- psuedo code
-  # description = 'Poster by {}\n\n {}'.format(thisposter.authorName, thisposter.miniAbstract)
-  #
-
-  # Call the API's videos.insert method to create and upload the video.
-  insert_request = youtube.videos().insert(
-    part=','.join(body.keys()),
-    body=body,
-    # The chunksize parameter specifies the size of each chunk of data, in
-    # bytes, that will be uploaded at a time. Set a higher value for
-    # reliable connections as fewer chunks lead to faster uploads. Set a lower
-    # value for better recovery on less reliable connections.
-    #
-    # Setting 'chunksize' equal to -1 in the code below means that the entire
-    # file will be uploaded in a single HTTP request. (If the upload fails,
-    # it will still be retried where it left off.) This is usually a best
-    # practice, but if you're using Python older than 2.6 or if you're
-    # running on App Engine, you should set the chunksize to something like
-    # 1024 * 1024 (1 megabyte).
-    media_body=MediaFileUpload(thisposter.videoFileName, chunksize=-1, resumable=True)
-  )
-
-  resumable_upload(insert_request, thisposter)
-
-# This method implements an exponential backoff strategy to resume a
-# failed upload.
-def resumable_upload(request, thisposter):
-  response = None
-  error = None
-  retry = 0
-  while response is None:
-    try:
-      print ('Uploading file...')
-      status, response = request.next_chunk()
-      if response is not None:
-        if 'id' in response:
-          print ('Video id "%s" was successfully uploaded.' % response['id'])
-          thisposter.youtubeID=response['id']
-          thisposter.videoLink="https://www.youtube.com/watch?v="+thisposter.youtubeID
-        else:
-          exit('The upload failed with an unexpected response: %s' % response)
-    except (HttpError, e):
-      if e.resp.status in RETRIABLE_STATUS_CODES:
-        error = 'A retriable HTTP error %d occurred:\n%s' % (e.resp.status,
-                                                             e.content)
-      else:
-        raise
-    except (RETRIABLE_EXCEPTIONS, e):
-      error = 'A retriable error occurred: %s' % e
-
-    if error is not None:
-      print (error)
-      retry += 1
-      if retry > MAX_RETRIES:
-        exit('No longer attempting to retry.')
-
-      max_sleep = 2 ** retry
-      sleep_seconds = random.random() * max_sleep
-      print ('Sleeping %f seconds and then retrying...' % sleep_seconds)
-      time.sleep(sleep_seconds)
 
 if __name__ == "__main__":
     main()
