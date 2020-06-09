@@ -18,9 +18,9 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-Debug = False;
-Verbose = False;
-UploadVideos = False;
+Debug = True;
+Verbose = True;
+UploadVideos = True;
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
@@ -42,7 +42,6 @@ SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 VALID_PRIVACY_STATUSES = ('public', 'private', 'unlisted')
-
 
 class Poster:                 # a poster data structure
     def __init__(self):
@@ -85,7 +84,8 @@ class Poster:                 # a poster data structure
             'presentLink': self.presentLink,
             'abstract': self.abstract,
             'miniAbstract': self.miniAbstract,
-            'session': self.session
+            'session': self.session,
+            'youtubeID':self.youtubeID
             }, indent=2, sort_keys=True)
 
 # grab poster pdf
@@ -128,31 +128,31 @@ def dealWithPdf(poster):
         print("got pdf ok")
 
     # make pngs
-    cmd = "pdf/posterPdfToPng.sh " + pdfName
-    os.system(cmd)  # should check for error
-    # move image files to the right place
-    os.system("mv " + tmpdir + imageName + " " + imgdir)
-    os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
-    # delete pdf from tmpdir
-    os.system("rm " + pdfName)
-    # fill values in the poster object
-    poster.filename = imgdir + imageName
-    poster.smallFilename = imgdir + imageName_sm
+    # cmd = "pdf/posterPdfToPng.sh " + pdfName
+    # os.system(cmd)  # should check for error
+    # # move image files to the right place
+    # os.system("mv " + tmpdir + imageName + " " + imgdir)
+    # os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
+    # # delete pdf from tmpdir
+    # os.system("rm " + pdfName)
+    # # fill values in the poster object
+    # poster.filename = imgdir + imageName
+    # poster.smallFilename = imgdir + imageName_sm
 
 
 def dealWithVideo(poster):
     global Debug
     global Verbose
 
-    url = thisPoster.videoName
+    url = poster.videoName
     posterID = poster.posterID
     # places to put stuff.  relative to index.html's subdir
     # eg, data/posterCsv2Json.py --verbose data/newdata.csv data/newdata.json
     filedir = "vid/"
-    poster.videoFilename = filedir + "posterVideo-" + posterID + "." + url.split('.')[-1]
+    poster.videoFileName = filedir + "posterVideo-" + posterID + "." + url.split('.')[-1]
 
     # grab it
-    fetchError = fetchfile(url,poster.videoFilename)
+    fetchError = fetchfile(url,poster.videoFileName)
     if (fetchError):
         print("fetchfile error ",fetchError)
         exit(fetchError)
@@ -161,11 +161,12 @@ def dealWithVideo(poster):
         print("got video ok")
 
 
-
 #Do it
 def main():
     global Debug
     global Verbose
+
+    youtube = get_authenticated_service()
 
     # a list/array of posters
     posterList = []
@@ -234,7 +235,7 @@ def main():
                         if(link.path[-4:]=='.pdf'):
                             thisPoster.pdfname = link.geturl()
                         # take the last link ending in .mp4 to be the video
-                        if(link.path[-4:]=='.mp4'):
+                        if(link.path[-4:]=='.MOV'):
                             thisPoster.videoName = link.geturl()
                     # should throw exception on links that aren't one of the
                     # above, so that we can parse it manually?
@@ -306,7 +307,7 @@ def initialize_upload(youtube, thisposter):
     # practice, but if you're using Python older than 2.6 or if you're
     # running on App Engine, you should set the chunksize to something like
     # 1024 * 1024 (1 megabyte).
-    media_body=MediaFileUpload(options.file, chunksize=-1, resumable=True)
+    media_body=MediaFileUpload(thisposter.videoFileName, chunksize=-1, resumable=True)
   )
 
   resumable_upload(insert_request, thisposter)
