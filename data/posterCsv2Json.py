@@ -99,6 +99,10 @@ def fetchfile(url,filename):
         cmd = "wget -o /dev/null " + url + " -O " + filename
     return os.system(cmd)
 
+# print warning messages
+# dump right now, but might want different handling than just "print"
+def LogWarning(warnString):
+    print(warnString)
 
 def dealWithPdf(poster):
     global Debug
@@ -312,16 +316,26 @@ def main():
                     for i in range(len(links)):
                         # parse string into url
                         link = urlparse(links[i].strip())
-                        # take the last link ending in .pdf to be the poster
-                        if(link.path[-4:]=='.pdf'):
-                            thisPoster.pdfname = link.geturl()
-                        # take the last link ending in .mp4 to be the video
-                        if(link.path[-4:]=='.MOV'):
-                            thisPoster.videoName = link.geturl()
-                    # should throw exception on links that aren't one of the
-                    # above, so that we can parse it manually?
+                        # take the first link ending in .pdf to be the poster
+                        if (Debug):
+                            print(link)
+                        if(link.path[-4:].lower()=='.pdf'):
+                            if (thisPoster.pdfname):
+                                LogWarning("poster " + thisPoster.posterID + " has too many pdfs")
+                            else:
+                                thisPoster.pdfname = link.geturl()
+                            continue
+                        # take the first link ending in .mp4 or .mov to be the video
+                        if ((link.path[-4:].lower()=='.mp4') or (link.path[-4:].lower()=='.mov')):
+                            if (thisPoster.videoName):
+                                LogWarning("poster " + thisPoster.posterID + " has too many videos")
+                            else:
+                                thisPoster.videoName = link.geturl()
+                            continue
+                        # don't know about this filetype
+                        LogWarning("poster " + thisPoster.posterID + " has unknown type")
 
-                # go grab pdf, shell out concert to png
+                # go grab pdf, shell out convert to png
                 if (thisPoster.pdfname != ""): dealWithPdf(thisPoster)
                 if (thisPoster.videoName != ""): dealWithVideo(thisPoster)
 
@@ -332,7 +346,9 @@ def main():
                         print ('An HTTP error %d occurred:\n%s' % (e.resp.status, e.content))
                 # if no pdf, skip to next thing so empty crap does
                 # not end in the json
-                else: continue
+                else:
+                    LogWarning("poster " + thisPoster.posterID + " has no pdf, skipping")
+                    continue
                 # same with mp4s, upload to outube, get back link?
 
                 # write out and store the poster
