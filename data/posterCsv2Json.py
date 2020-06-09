@@ -81,6 +81,7 @@ class Poster:                 # a poster data structure
             'posterTitle': self.posterTitle,
             'videoLink': self.videoLink,
             'videoName': self.videoName,
+            'videoFileName': self.videoFileName,
             'presentLink': self.presentLink,
             'abstract': self.abstract,
             'miniAbstract': self.miniAbstract,
