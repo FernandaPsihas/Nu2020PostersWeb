@@ -132,16 +132,16 @@ def dealWithPdf(poster):
         print("got pdf ok")
 
     # make pngs
-    # cmd = "pdf/posterPdfToPng.sh " + pdfName
-    # os.system(cmd)  # should check for error
-    # # move image files to the right place
-    # os.system("mv " + tmpdir + imageName + " " + imgdir)
-    # os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
-    # # delete pdf from tmpdir
-    # os.system("rm " + pdfName)
-    # # fill values in the poster object
-    # poster.filename = imgdir + imageName
-    # poster.smallFilename = imgdir + imageName_sm
+    cmd = "pdf/posterPdfToPng.sh " + pdfName
+    os.system(cmd)  # should check for error
+    # move image files to the right place
+    os.system("mv " + tmpdir + imageName + " " + imgdir)
+    os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
+    # delete pdf from tmpdir
+    os.system("rm " + pdfName)
+    # fill values in the poster object
+    poster.filename = imgdir + imageName
+    poster.smallFilename = imgdir + imageName_sm
 
 
 def dealWithVideo(poster):
