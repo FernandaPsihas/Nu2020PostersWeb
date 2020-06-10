@@ -87,7 +87,7 @@
 
 	  <!-- The actual index: html is built up by script buildIndex() -->
           <h4><strong>Session Index</strong></h4> 
-	  <input type="text" id="indexInput" onkeyup="indexSearchFunction()" placeholder="Search for titles or presenters">
+	  <input type="text" id="indexInput" onkeyup="indexSearchFunction()" placeholder="Search for titles, presenters, or poster #">
 	  <select id="sessionSelect" onclick="filterSession()">
 	    <option value="0">All Sessions:</option>
 	    <option value="1">Session 1</option>
@@ -203,7 +203,10 @@
         $('#posterTitle').html(currentEVD.posterTitle);
         $('#miniAbstract').html(currentEVD.miniAbstract);
         $('#sessionText').html('(Poster is in session #'+currentEVD.session+')');
-        $('#authors').html(currentEVD.otherNames);
+	// bold the presenter in the autorlist
+	var authorList = currentEVD.otherNames;
+	var presenter = currentEVD.authorName;
+        $('#authors').html(authorList.replace(presenter,'<b>' + presenter + '</b>'));
         // need some logic to add commas etc
 //        if (currentEVD.otherNames.length > 0) {
 //          $('#authors').html(currentEVD.authorName + ', ' + currentEVD.otherNames);
