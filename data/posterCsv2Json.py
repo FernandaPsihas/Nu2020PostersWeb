@@ -8,30 +8,36 @@ import os
 # upload-required includes
 import argparse
 import http.client as httplib
-import httplib2
+# check with Fernanda import httplib2
 import random
 import time
-import google.oauth2.credentials
-import google_auth_oauthlib.flow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaFileUpload
-from google_auth_oauthlib.flow import InstalledAppFlow
+# check with Fernanda import google.oauth2.credentials
+# check with Fernanda import google_auth_oauthlib.flow
+# check with Fernanda from googleapiclient.discovery import build
+# check with Fernanda from googleapiclient.errors import HttpError
+# check with Fernanda from googleapiclient.http import MediaFileUpload
+# check with Fernanda from google_auth_oauthlib.flow import InstalledAppFlow
 
 Debug = True;
 Verbose = True;
-UploadVideos = True;
+UploadVideos = False;
+
+DownloadAnything = False;
+DummyPdfname = "pdf/mock_poster_2.pdf";
+DummyVideo = "https://www.youtube.com/embed/ne7wTZ1AjG8";
+DummyFilename = "img/mock_poster_2.png";
+DummySmallFilename = "img/mock_poster_2-sm.png";
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
-httplib2.RETRIES = 1
+# check with Fernanda httplib2.RETRIES = 1
 # Maximum number of times to retry before giving up.
 MAX_RETRIES = 10
 # Always retry when these exceptions are raised.
-RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
-  httplib.IncompleteRead, httplib.ImproperConnectionState,
-  httplib.CannotSendRequest, httplib.CannotSendHeader,
-  httplib.ResponseNotReady, httplib.BadStatusLine)
+# check with Fernanda RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
+# check with Fernanda   httplib.IncompleteRead, httplib.ImproperConnectionState,
+# check with Fernanda   httplib.CannotSendRequest, httplib.CannotSendHeader,
+# check with Fernanda   httplib.ResponseNotReady, httplib.BadStatusLine)
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
@@ -50,6 +56,7 @@ class Poster:                 # a poster data structure
         self.otherNames = ''
         self.collaboration = ''
         self.category = ''
+        self.track = ''
         self.filename = ''
         self.smallFilename = ''
         self.pdfname = ''
@@ -75,6 +82,7 @@ class Poster:                 # a poster data structure
             'otherNames': self.otherNames,
             'collaboration': self.collaboration,
             'category': self.category,
+            'track': self.track,
             'filename': self.filename,
             'smallFilename': self.smallFilename,
             'pdfname': self.pdfname,
@@ -88,6 +96,7 @@ class Poster:                 # a poster data structure
             'session': self.session,
             'youtubeID':self.youtubeID
             }, indent=2, sort_keys=True)
+    # maybe add ensure_ascii=False to get unicode to come out ok
 
 # grab poster pdf
 def fetchfile(url,filename):
@@ -226,8 +235,7 @@ def resumable_upload(request, thisposter):
 # this is the plain youtube webpage
 #          thisposter.videoLink="https://www.youtube.com/watch?v="+thisposter.youtubeID
 # this is the embed link we shove into the iframe alter
-          thisposter.videoLink="https://www.youtube.com/embed/"+thisposter.y\
-outubeID
+          thisposter.videoLink="https://www.youtube.com/embed/"+thisposter.youtubeID
         else:
           exit('The upload failed with an unexpected response: %s' % response)
     except (HttpError, e):
@@ -255,8 +263,8 @@ def main():
     global Debug
     global Verbose
 
-    if ( UploadVideos ):
-        youtube = get_authenticated_service()
+# check with Fernanda     if ( UploadVideos ):
+# check with Fernanda         youtube = get_authenticated_service()
 
     # a list/array of posters
     posterList = []
@@ -288,6 +296,8 @@ def main():
         # hassling with manual row indexes
         rownum = 0
         with open(outfilename, 'w') as outfile:
+            # write the leading [
+            outfile.write("[\n")
             next(posterReader)
             for row in posterReader:
                 if (Debug):  print(row)
@@ -296,72 +306,86 @@ def main():
 
                 # digest csv data, store in poster object
                 thisPoster.posterID = row[0]
-                thisPoster.authorName = row[1] # Presenter, anyway
-                thisPoster.otherNames = row[2] # Co-authors, might result in duped names
-                # is row[3] Co-Authors used?
-                # need thisPoster.collaboration in there
-                thisPoster.session = row[7]
-                thisPoster.category = row[8]
-                # need thisPoster.posterTitle = row[]
-                thisPoster.abstract = row[6]
-                thisPoster.miniAbstract = row[4]
+                thisPoster.posterTitle = row[1]
+                thisPoster.authorName = row[2] # Presenter, anyway
+                thisPoster.otherNames = row[3] # Authors, always includes Presenter
+                # is row[4] Co-Authors used?
+                thisPoster.collaboration = row[5]
+#                thisPoster.session = row[9]
+# for test, make session posterid % 4
+                thisPoster.session = str((int(thisPoster.posterID) % 4) + 1)
+                thisPoster.track = row[10]
+                thisPoster.category = row[11]
+                thisPoster.abstract = row[8]
+                thisPoster.miniAbstract = row[6]
 
-                # row[5] is the hard one, links
+                # row[7] is the hard one, links
                 # should contain one pdf and one other movie file
                 # pdf should be fetched, then pngs made
                 # store pdf locally or delete and point back to indico?
 
-                # let's search that string for a pdf URL and save that
-                # use the csv library to chop things in that row
-                f = StringIO(row[5])
-                linkReader = csv.reader(f, delimiter=',')
-                # should be only one row here, calling it "links"
-                for links in linkReader:
-		    # loop over items in the links column
-                    for i in range(len(links)):
-                        # parse string into url
-                        link = urlparse(links[i].strip())
-                        # take the first link ending in .pdf to be the poster
-                        if (Debug):
-                            print(link)
-                        if(link.path[-4:].lower()=='.pdf'):
-                            if (thisPoster.pdfname):
-                                LogWarning("poster " + thisPoster.posterID + " has too many pdfs")
-                            else:
-                                thisPoster.pdfname = link.geturl()
-                            continue
-                        # take the first link ending in .mp4 or .mov to be the video
-                        if ((link.path[-4:].lower()=='.mp4') or (link.path[-4:].lower()=='.mov')):
-                            if (thisPoster.videoName):
-                                LogWarning("poster " + thisPoster.posterID + " has too many videos")
-                            else:
-                                thisPoster.videoName = link.geturl()
-                            continue
-                        # don't know about this filetype
-                        LogWarning("poster " + thisPoster.posterID + " has unknown type")
+                # don't mess with this field in test mode.  Otherwise, 
+                # fill the json with placeholders
+                if (DownloadAnything):
+                    # let's search that string for a pdf URL and save that
+                    # use the csv library to chop things in that row
+                    f = StringIO(row[7])
+                    linkReader = csv.reader(f, delimiter=',')
+                    # should be only one row here, calling it "links"
+                    for links in linkReader:
+                        # loop over items in the links column
+                        for i in range(len(links)):
+                            # parse string into url
+                            link = urlparse(links[i].strip())
+                            # take the first link ending in .pdf to be the poster
+                            if (Debug): print(link)
+                            if(link.path[-4:].lower()=='.pdf'):
+                                if (thisPoster.pdfname):
+                                    LogWarning("poster " + thisPoster.posterID + " has too many pdfs")
+                                else:
+                                    thisPoster.pdfname = link.geturl()
+                                continue
+                            # take the first link ending in .mp4 or .mov to be the video
+                            if ((link.path[-4:].lower()=='.mp4') or (link.path[-4:].lower()=='.mov')):
+                                if (thisPoster.videoName):
+                                    LogWarning("poster " + thisPoster.posterID + " has too many videos")
+                                else:
+                                    thisPoster.videoName = link.geturl()
+                                continue
+                            # don't know about this filetype
+                            LogWarning("poster " + thisPoster.posterID + " has unknown type")
 
-                # go grab pdf, shell out convert to png
-                if (thisPoster.pdfname != ""): dealWithPdf(thisPoster)
-                if (thisPoster.videoName != ""): dealWithVideo(thisPoster)
+                    # go grab pdf, shell out convert to png
+                    if (thisPoster.pdfname != ""): dealWithPdf(thisPoster)
+                    # if no pdf, skip to next thing so empty crap does
+                    # not end in the json
+                    else:
+                        LogWarning("poster " + thisPoster.posterID + " has no pdf, skipping")
+                        continue
 
-                if ( UploadVideos ):
-                    try:
-                        initialize_upload(youtube, thisPoster)
-                    except (HttpError, e):
-                        print ('An HTTP error %d occurred:\n%s' % (e.resp.status, e.content))
-                # if no pdf, skip to next thing so empty crap does
-                # not end in the json
-                else:
-                    LogWarning("poster " + thisPoster.posterID + " has no pdf, skipping")
-                    continue
-                # same with mp4s, upload to outube, get back link?
+                    if ((thisPoster.videoName != "") and UploadVideos): 
+                        dealWithVideo(thisPoster)
+                        if ( UploadVideos ):
+                            try:
+                                initialize_upload(youtube, thisPoster)
+                            except (HttpError, e):
+                                print ('An HTTP error %d occurred:\n%s' % (e.resp.status, e.content))
+
+                else:  # no downloads, stuff with dummy values
+                    thisPoster.pdfname = DummyPdfname
+                    thisPoster.videoLink = DummyVideo
+                    thisPoster.filename = DummyFilename
+                    thisPoster.smallFilename = DummySmallFilename
 
                 # write out and store the poster
                 posterList.append(thisPoster) # why?  dunno, could be handy
+                # if not the first row, add a comma to last entry
+                if (rownum > 0): outfile.write(",\n")
                 outfile.write(thisPoster.__str__())
-                outfile.write("\n")
                 rownum += 1
 
+            # write the trailing ]
+            outfile.write("\n]\n")
             outfile.close
         infile.close
         if (Verbose): print("non-header rows: ",rownum)
