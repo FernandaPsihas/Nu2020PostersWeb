@@ -156,19 +156,39 @@
       var searchState = [];
       var sessionState = [];
       var trackState = [];
+      // wasn't originally global, so gets passed by parameter a lot
       var posterList = [];
 
       // Display a random thing in the array
       function DisplayRandomEVD(evds)
       {
-        currentEVD = evds[Math.floor(Math.random() * evds.length)];
+        // copy selection matches to a new array        
+        var i=0;
+        var meetsSelection = [];
+        for (i=0; i<evds.length; i++)
+        {
+	  if (searchState[i] && sessionState[i] && trackState[i]) 
+	    {
+		// stick poster on new list
+		meetsSelection.push(evds[i]);
+            }
+	}
+	// if we selected some posters choose from them
+	var currentEVD;
+	if (meetsSelection.length > 0)
+	{
+	  currentEVD = meetsSelection[Math.floor(Math.random() * meetsSelection.length)];
+	} else {
+	  // if nothing selected, roll the dice for all entries
+          currentEVD = evds[Math.floor(Math.random() * evds.length)];
+	}
         DisplayEVD(currentEVD);
       }
 
       // Display a particular thing in the array
       function DisplaySomeEVD(evds,whichOne)
       {
-        currentEVD = evds[whichOne];
+        var currentEVD = evds[whichOne];
         DisplayEVD(currentEVD);
       }
 
@@ -183,12 +203,13 @@
         $('#posterTitle').html(currentEVD.posterTitle);
         $('#miniAbstract').html(currentEVD.miniAbstract);
         $('#sessionText').html('(Poster is in session #'+currentEVD.session+')');
+        $('#authors').html(currentEVD.otherNames);
         // need some logic to add commas etc
-        if (currentEVD.otherNames.length > 0) {
-          $('#authors').html(currentEVD.authorName + ', ' + currentEVD.otherNames);
-        } else {
-          $('#authors').html(currentEVD.authorName);
-        }
+//        if (currentEVD.otherNames.length > 0) {
+//          $('#authors').html(currentEVD.authorName + ', ' + currentEVD.otherNames);
+//        } else {
+//          $('#authors').html(currentEVD.authorName);
+//        }
         if (currentEVD.collaboration.length > 0) {
           $('#collaboration').html('for the ' + currentEVD.collaboration + ' collaboration');
         } else {
@@ -396,7 +417,7 @@
         }
       }
 
-      // Reload data, display a random one if random is true, else thisOne
+      // Display a random one if random is true, else thisOne
       function Cycle(random,thisOne)
       {
         if (random) { DisplayRandomEVD(posterList);}
@@ -408,7 +429,7 @@
       {
         // Perform Ajax request, fetch posters.json
         $.ajax({
-            url: 'data/posters.json',
+            url: 'data/nu2020-all-posters-test-1.json',
             type: 'get',
             success: function(respose){
 	      posterList = respose;
@@ -423,7 +444,6 @@
 
       // When the page has loaded, execute everything inside the function()
       $( document ).ready(function(){
-        currentEVD = {}
         LoadData();
       });
     </script>
