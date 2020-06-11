@@ -28,6 +28,7 @@ DummyVideo = "https://www.youtube.com/embed/ne7wTZ1AjG8";
 DummyFilename = "img/mock_poster_2.png";
 DummySmallFilename = "img/mock_poster_2-sm.png";
 DummyContestLink = "https://docs.google.com/forms/d/e/1FAIpQLSeSZc02g5bPzP-ishvKyRADUwqAy4h0FZe6zD44G-WfgbMEhA/viewform";
+DummyPresentLink  = "https://nu2020-hubs.org/#/";
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
@@ -380,7 +381,8 @@ def main():
                     thisPoster.videoLink = DummyVideo
                     thisPoster.filename = DummyFilename
                     thisPoster.smallFilename = DummySmallFilename
-                    thisPoster.contestLink = DummyContestLink;
+                    thisPoster.contestLink = DummyContestLink
+                    thisPoster.presentLink = DummyPresentLink
 
                 # write out and store the poster
                 posterList.append(thisPoster) # why?  dunno, could be handy
