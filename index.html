@@ -123,6 +123,7 @@
 	  <h4><div id=authors></div></h4>
 	  <h4><div id=collaboration></div></h4>
 	  <h4><em><div id=miniAbstract></div></em></h4>
+	  <h4>  <a id="contestLink"><span class="badge badge-info">Poster Contest Feedback Form</span></a></h4>
           <!-- was 560x315 -->
 	  <div id=videoLink></div>
 	  <a id="pdf"><img id="poster" style="max-width: 0.9column-width;"></a>
@@ -202,6 +203,13 @@
         $('a#presentLink').attr('href',currentEVD.presentLink);
         $('#posterTitle').html(currentEVD.posterTitle);
         $('#miniAbstract').html(currentEVD.miniAbstract);
+	var contestLink = document.getElementById('contestLink');
+	if (currentEVD.contestLink == "") {
+	  contestLink.style.display = "none";
+	} else {
+          $('a#contestLink').attr('href',currentEVD.contestLink);
+	  contestLink.style.display = "";
+	}
         $('#sessionText').html('(Poster is in session #'+currentEVD.session+')');
 	// bold the presenter in the autorlist
 	var authorList = currentEVD.otherNames;

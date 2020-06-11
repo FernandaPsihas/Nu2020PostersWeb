@@ -27,6 +27,7 @@ DummyPdfname = "pdf/mock_poster_2.pdf";
 DummyVideo = "https://www.youtube.com/embed/ne7wTZ1AjG8";
 DummyFilename = "img/mock_poster_2.png";
 DummySmallFilename = "img/mock_poster_2-sm.png";
+DummyContestLink = "https://docs.google.com/forms/d/e/1FAIpQLSeSZc02g5bPzP-ishvKyRADUwqAy4h0FZe6zD44G-WfgbMEhA/viewform";
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
@@ -68,6 +69,7 @@ class Poster:                 # a poster data structure
         self.abstract = ''
         self.miniAbstract = ''
         self.session = ''
+        self.contestLink = ''
         self.youtubeID = ''
 
 #    def __repr__(self):
@@ -94,6 +96,7 @@ class Poster:                 # a poster data structure
             'abstract': self.abstract,
             'miniAbstract': self.miniAbstract,
             'session': self.session,
+            'contestLink': self.contestLink,
             'youtubeID':self.youtubeID
             }, indent=2, sort_keys=True)
     # maybe add ensure_ascii=False to get unicode to come out ok
@@ -377,6 +380,7 @@ def main():
                     thisPoster.videoLink = DummyVideo
                     thisPoster.filename = DummyFilename
                     thisPoster.smallFilename = DummySmallFilename
+                    thisPoster.contestLink = DummyContestLink;
 
                 # write out and store the poster
                 posterList.append(thisPoster) # why?  dunno, could be handy
