@@ -191,9 +191,9 @@ def initialize_upload(youtube, thisposter):
 #    tags = thisposter.keywords.split(',')
   body=dict(
     snippet=dict(
-      title=thisposter.miniAbstract,
+      title=thisposter.posterTitle,
       description=thisposter.authorName,
-      # description = 'Poster by {}\n\n {}'.format(thisposter.authorName, thisposter.miniAbstract)
+      # description = 'Poster by {}\n\n {}'.format(thisposter.authorName, thisposter.posterTitle)
       tags=tags,
       categoryId=thisposter.category
     ),
