@@ -309,7 +309,8 @@ def main():
                 thisPoster.posterTitle = row[1]
                 thisPoster.authorName = row[2] # Presenter, anyway
                 thisPoster.otherNames = row[3] # Authors, always includes Presenter
-                # is row[4] Co-Authors used?
+                # add in co-Authors field if present
+                if (row[4]): thisPoster.otherNames += ', ' + row[4]
                 thisPoster.collaboration = row[5]
 #                thisPoster.session = row[9]
 # for test, make session posterid % 4
