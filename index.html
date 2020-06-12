@@ -123,6 +123,7 @@
 	  <h4><div id=authors></div></h4>
 	  <h4><div id=collaboration></div></h4>
 	  <h4><em><div id=miniAbstract></div></em></h4>
+	  <h4>  <a id="abstractLink"><span class="badge badge-info">Full abstract</span></a></h4>
 	  <h4>  <a id="contestLink"><span class="badge badge-info">Poster Contest Feedback Form</span></a></h4>
           <!-- was 560x315 -->
 	  <div id=videoLink></div>
@@ -209,6 +210,7 @@
 	}
         $('#posterTitle').html(currentEVD.posterTitle);
         $('#miniAbstract').html(currentEVD.miniAbstract);
+        $('a#abstractLink').attr('href',currentEVD.abstract);
 	var contestLink = document.getElementById('contestLink');
 	if (currentEVD.contestLink == "") {
 	  contestLink.style.display = "none";
@@ -447,7 +449,7 @@
       {
         // Perform Ajax request, fetch posters.json
         $.ajax({
-            url: 'data/nu2020-all-posters-test-1.json',
+            url: 'data/nu2020-all-posters-test-2.json',
             type: 'get',
             success: function(respose){
 	      posterList = respose;

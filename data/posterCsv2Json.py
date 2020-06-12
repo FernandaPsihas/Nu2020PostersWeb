@@ -321,7 +321,7 @@ def main():
                 thisPoster.session = str((int(thisPoster.posterID) % 4) + 1)
                 thisPoster.track = row[10]
                 thisPoster.category = row[11]
-                thisPoster.abstract = row[8]
+                thisPoster.abstract = row[12]+'contribution.pdf'
                 thisPoster.miniAbstract = row[6]
 
                 # row[7] is the hard one, links
