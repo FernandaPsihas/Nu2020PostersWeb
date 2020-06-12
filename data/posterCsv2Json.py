@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/cvmfs/larsoft.opensciencegrid.org/products/python/v3_7_2/Linux64bit+3.10-2.17/bin/python
 import csv
 from optparse import OptionParser
 import json
@@ -8,15 +8,15 @@ import os
 # upload-required includes
 import argparse
 import http.client as httplib
-# check with Fernanda import httplib2
+import httplib2
 import random
 import time
-# check with Fernanda import google.oauth2.credentials
-# check with Fernanda import google_auth_oauthlib.flow
-# check with Fernanda from googleapiclient.discovery import build
-# check with Fernanda from googleapiclient.errors import HttpError
-# check with Fernanda from googleapiclient.http import MediaFileUpload
-# check with Fernanda from google_auth_oauthlib.flow import InstalledAppFlow
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 Debug = True;
 Verbose = True;
@@ -32,14 +32,14 @@ DummyPresentLink  = "https://nu2020-hubs.org/#/";
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
 # we are handling retry logic ourselves.
-# check with Fernanda httplib2.RETRIES = 1
+httplib2.RETRIES = 1
 # Maximum number of times to retry before giving up.
 MAX_RETRIES = 10
 # Always retry when these exceptions are raised.
-# check with Fernanda RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
-# check with Fernanda   httplib.IncompleteRead, httplib.ImproperConnectionState,
-# check with Fernanda   httplib.CannotSendRequest, httplib.CannotSendHeader,
-# check with Fernanda   httplib.ResponseNotReady, httplib.BadStatusLine)
+RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
+httplib.IncompleteRead, httplib.ImproperConnectionState,
+httplib.CannotSendRequest, httplib.CannotSendHeader,
+httplib.ResponseNotReady, httplib.BadStatusLine)
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
@@ -267,8 +267,8 @@ def main():
     global Debug
     global Verbose
 
-# check with Fernanda     if ( UploadVideos ):
-# check with Fernanda         youtube = get_authenticated_service()
+    if ( UploadVideos ):
+        youtube = get_authenticated_service()
 
     # a list/array of posters
     posterList = []
