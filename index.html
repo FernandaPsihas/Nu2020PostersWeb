@@ -446,7 +446,7 @@
       }
 
       // Load data, display a random one
-      function LoadData()
+      function LoadData(posterID)
       {
         // Perform Ajax request, fetch posters.json
         $.ajax({
@@ -455,7 +455,23 @@
             success: function(respose){
 	      posterList = respose;
 	      buildIndex(respose);
-              DisplayRandomEVD(respose);
+	      if (posterID) {
+		// we've been passed a posterID.  
+		// Need to find which index that corresponds to 
+		var i=0;
+		var foundIndex = -1;
+		for (i=0; i<respose.length; i++)
+		{
+		  if (posterID == respose[i].posterID) {
+		    foundIndex = i;
+		    break;
+		  }
+		}
+		if (foundIndex >= 0) DisplaySomeEVD(respose,foundIndex);
+		else DisplayRandomEVD(respose);
+	      } else {
+                DisplayRandomEVD(respose);
+	      }
             },
             error: function (xhr, ajaxOptions, thrownError) {
               console.log('An error occurred :(');
@@ -465,7 +481,12 @@
 
       // When the page has loaded, execute everything inside the function()
       $( document ).ready(function(){
-        LoadData();
+        // grab querystrings
+	// looking for ?posterID=123
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	const posterID = urlParams.get('posterID')
+        LoadData(posterID);
       });
     </script>
 
