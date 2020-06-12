@@ -200,7 +200,13 @@
         $('#posterID').html('Poster #' + currentEVD.posterID);
         $('img#poster').attr('src', currentEVD.filename);
         $('a#pdf').attr('href',currentEVD.pdfname);
-        $('a#presentLink').attr('href',currentEVD.presentLink);
+	var presentLink = document.getElementById('presentLink');
+	if (currentEVD.presentLink == "") {
+	  presentLink.style.display = "none";
+	} else {
+	  presentLink.style.display = "";
+          $('a#presentLink').attr('href',currentEVD.presentLink);
+	}
         $('#posterTitle').html(currentEVD.posterTitle);
         $('#miniAbstract').html(currentEVD.miniAbstract);
 	var contestLink = document.getElementById('contestLink');
