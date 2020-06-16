@@ -96,7 +96,7 @@
 	    <option value="4">Session 4</option>
 	  </select>
 	  <select id="trackSelect" onclick="filterTrack()">
-	    <option value="0">All Tracks:</option>
+	    <option value="0">All Categories:</option>
 	    <option value="detect">&nu; Detectors</option>
 	    <option value="lbl">Atmos. & Accel. &nu;</option>
 	    <option value="react">Reactor & Solar &nu;</option>
@@ -276,6 +276,7 @@
           var posterDIV = document.createElement("DIV");
 	  posterDIV.dataset.session = evds[i].session;
 	  posterDIV.dataset.category = evds[i].category;
+	  posterDIV.dataset.track = evds[i].track;
 	  posterLI.appendChild(posterDIV);
 
 	  // Make html for that div.  Still doing this as a astring
@@ -415,7 +416,8 @@
 	for (i = 0; i < li.length; i++)
         {
           var div = li[i].getElementsByTagName("div")[0];
-	  if ((div.dataset.category == selected) || (selected == 0)) {
+	  if ((div.dataset.category == selected) ||
+	      (div.dataset.track == selected) || (selected == 0)) {
             trackState[i] = true;
 	  } else {
             trackState[i] = false;
