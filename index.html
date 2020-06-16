@@ -2,9 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>
-      Posters Session X
-    </title>
+    <title id="mainTitle">All Posters</title>
 
     <link rel="shortcut icon" href="favicon.ico">
 
@@ -64,9 +62,9 @@
       <div class="row">
         <div class="col-12">
           <nav class="navbar navbar-dark bg-dark">
-            <span class="navbar-brand mb-0 h1">
+            <span id="barTitle" class="navbar-brand mb-0 h1">
               <a href="https://conferences.fnal.gov/nu2020/" ><img src="img/webimg/Nu2020.png" style="max-width: 200pt;"></a>
-              Poster Session X
+              All Posters 
             </span>
           </nav>
         </div>
@@ -120,7 +118,7 @@
         <div class="col-8 text-center border-left">
 	  <h3>
 	    <div id=posterID></div>
-	    <a id="presentLink"><span class="badge badge-info">Click here to Enter Live Poster Session</span></a>
+	    <div><a id="presentLink"><span class="badge badge-info">Click here to Enter Live Poster Session</span></a></div>
 	  </h3>
 	  <h5><div id=sessionText></div></h5>
 	  <h3><strong><div id=posterTitle></div></strong></h3>
@@ -165,6 +163,9 @@
       // wasn't originally global, so gets passed by parameter a lot
       var posterList = [];
 
+      // default session number
+      var defaultSession = "1";
+
       // Display a random thing in the array
       function DisplayRandomEVD(evds)
       {
@@ -205,11 +206,13 @@
         $('#posterID').html('Poster #' + currentEVD.posterID);
         $('img#poster').attr('src', currentEVD.filename);
         $('a#pdf').attr('href',currentEVD.pdfname);
-	var presentLink = document.getElementById('presentLink');
+	var presentDiv = document.getElementById('presentLink').parentNode;
+	// if poster is not in the current session, don't use this link
+	if (currentEVD.session != defaultSession) currentEVD.presentLink = "";
 	if (currentEVD.presentLink == "") {
-	  presentLink.style.display = "none";
+	  presentDiv.style.display = "none";
 	} else {
-	  presentLink.style.display = "";
+	  presentDiv.style.display = "";
           $('a#presentLink').attr('href',currentEVD.presentLink);
 	}
         $('#posterTitle').html(currentEVD.posterTitle);
@@ -487,12 +490,34 @@
 
       // When the page has loaded, execute everything inside the function()
       $( document ).ready(function(){
+        // build titles
+	if (defaultSession > 0) {
+	  $('#mainTitle').html('Posters Session ' + defaultSession);
+	  $('#barTitle').html('<a href="https://conferences.fnal.gov/nu2020/" ><img src="img/webimg/Nu2020.png" style="max-width: 200pt;"></a>Posters Session ' + defaultSession);
+	} // else it keeps the html already in the element
+
         // grab querystrings
-	// looking for ?posterID=123
+	// looking for ?posterID=123, for example
 	const queryString = window.location.search;
 	const urlParams = new URLSearchParams(queryString);
 	const posterID = urlParams.get('posterID')
-        LoadData(posterID);
+        // if there is no parameter, this will be null, which means random
+
+	// Load up the requested poster
+        LoadData(posterID);  
+
+	// if there's a default session, set the session search appropriately
+	var sessionSelect = document.getElementById('sessionSelect');
+	for(var i, j = 0; i = sessionSelect.options[j]; j++) {
+	  if(i.value == defaultSession) {
+            sessionSelect.selectedIndex = j;
+            sessionSelect.value = j;
+            break;
+          }
+        }
+// need to also filter the index, for some reason the list isn't built yet?
+//	filterSession();
+
       });
     </script>
 
