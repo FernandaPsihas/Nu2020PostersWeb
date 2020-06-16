@@ -21,6 +21,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 Debug = True;
 Verbose = True;
 UploadVideos = False;
+Number = -1;
 
 DownloadAnything = False;
 DummyPdfname = "pdf/mock_poster_2.pdf";
@@ -266,6 +267,7 @@ def resumable_upload(request, thisposter):
 def main():
     global Debug
     global Verbose
+    global Number
 
     if ( UploadVideos ):
         youtube = get_authenticated_service()
@@ -279,10 +281,13 @@ def main():
     parser.add_option("-d", "--debug", action="store_true", dest="Debug",
                       help="enable debug printing", default=False)
     parser.add_option("-v", "--verbose", action="store_true", dest="Verbose",
-                      help="echo student output to screen", default=False)
+                      help="echo output to screen", default=False)
+    parser.add_option("-n", "--number", type="int", nargs=1, dest="Number",
+                      help="do this many poster entries", default=-1)
     (options, args) = parser.parse_args()
     Verbose = options.Verbose
     Debug = options.Debug
+    Number = options.Number
     if (len(args) != 2):
         parser.error("Specify input and output files")
         sys.exit(1)
@@ -293,6 +298,11 @@ def main():
 
     if (Verbose): print("Reading from ", infilename, ", writing to ",outfilename)
     # consume infile
+    if (Verbose):
+        if (Number > 0):
+            print("Doing the first " + str(Number) + " poster entries")
+        else:
+            print("Doing all poster entries")
 
     with open(infilename, 'r') as infile:
         posterReader = csv.reader(infile, delimiter=',')
@@ -383,11 +393,13 @@ def main():
 
                 else:  # no downloads, stuff with dummy values
                     thisPoster.pdfname = DummyPdfname
-                    thisPoster.videoLink = DummyVideo
                     thisPoster.filename = DummyFilename
                     thisPoster.smallFilename = DummySmallFilename
-                    thisPoster.contestLink = DummyContestLink
-                    thisPoster.presentLink = DummyPresentLink
+
+                thisPoster.videoLink = DummyVideo
+                # these just aren't in the json yet
+                thisPoster.contestLink = DummyContestLink
+                thisPoster.presentLink = DummyPresentLink
 
                 # write out and store the poster
                 posterList.append(thisPoster) # why?  dunno, could be handy
@@ -395,7 +407,10 @@ def main():
                 if (rownum > 0): outfile.write(",\n")
                 outfile.write(thisPoster.__str__())
                 LogWarning('Poster #'+thisPoster.posterID+' written to json')
+
+                # check to see if we're done
                 rownum += 1
+                if ((Number > 0) and (rownum >= Number)): break
 
             # write the trailing ]
             outfile.write("\n]\n")
