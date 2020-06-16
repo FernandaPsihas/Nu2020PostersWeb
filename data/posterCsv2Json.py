@@ -316,15 +316,20 @@ def main():
                 # add in co-Authors field if present
                 if (row[4]): thisPoster.otherNames += ', ' + row[4]
                 thisPoster.collaboration = row[5]
-#                thisPoster.session = row[9]
-# for test, make session posterid % 4
-                thisPoster.session = str((int(thisPoster.posterID) % 4) + 1)
-                thisPoster.track = row[10]
-                thisPoster.category = row[11]
-                thisPoster.abstract = row[12]+'contribution.pdf'
                 thisPoster.miniAbstract = row[6]
+                # just poster links in row[7]
+                # just video links in row[8]
+                # row[9] is all links (was row[7]
+                # row[10] is abstract text if we can find it
+                thisPoster.track = row[11] # was 10
+                thisPoster.category = row[12] # was 11
+                thisPoster.abstract = row[13] # was 12
+                thisPoster.session = row[14]
+#                thisPoster.session = row[9][-1:]
+# for test, make session posterid % 4
+#                thisPoster.session = str((int(thisPoster.posterID) % 4) + 1)
 
-                # row[7] is the hard one, links
+                # row[9] is the hard one, links
                 # should contain one pdf and one other movie file
                 # pdf should be fetched, then pngs made
                 # store pdf locally or delete and point back to indico?
@@ -334,7 +339,7 @@ def main():
                 if (DownloadAnything):
                     # let's search that string for a pdf URL and save that
                     # use the csv library to chop things in that row
-                    f = StringIO(row[7])
+                    f = StringIO(row[9])
                     linkReader = csv.reader(f, delimiter=',')
                     # should be only one row here, calling it "links"
                     for links in linkReader:
@@ -389,6 +394,7 @@ def main():
                 # if not the first row, add a comma to last entry
                 if (rownum > 0): outfile.write(",\n")
                 outfile.write(thisPoster.__str__())
+                LogWarning('Poster #'+thisPoster.posterID+' written to json')
                 rownum += 1
 
             # write the trailing ]
