@@ -23,7 +23,7 @@ Verbose = True;
 UploadVideos = False;
 Number = -1;
 
-DownloadAnything = False;
+DownloadAnything = True;
 DummyPdfname = "pdf/mock_poster_2.pdf";
 DummyVideo = "https://www.youtube.com/embed/ne7wTZ1AjG8";
 DummyFilename = "img/mock_poster_2.png";
@@ -128,7 +128,7 @@ def dealWithPdf(poster):
     # places to put stuff.  relative to index.html's subdir
     # eg, data/posterCsv2Json.py --verbose data/newdata.csv data/newdata.json
     # should make these runtime parameters
-    tmpdir = "/tmp/"
+    tmpdir = "/nashome/h/habig/Nu2020PosterWeb/tmp/"
     imgdir = "img/"
     pdfdir = "pdf"   # if we keep them.  Prob. leave on indico instead
 
@@ -138,10 +138,10 @@ def dealWithPdf(poster):
     imageName_sm = "posterPDF-" + posterID + "-sm.png"
 
     # grab it
-    fetchError = fetchfile(url,pdfName)
-    if (fetchError):
-        print("fetchpdf error ",fetchError)
-        exit(fetchError)
+#    fetchError = fetchfile(url,pdfName)
+#    if (fetchError):
+#        print("fetchpdf error ",fetchError)
+#        exit(fetchError)
     # got it ok
     if (Debug):
         print("got pdf ok")
@@ -153,7 +153,7 @@ def dealWithPdf(poster):
     os.system("mv " + tmpdir + imageName + " " + imgdir)
     os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
     # delete pdf from tmpdir
-    os.system("rm " + pdfName)
+#    os.system("rm " + pdfName)
     # fill values in the poster object
     poster.filename = imgdir + imageName
     poster.smallFilename = imgdir + imageName_sm
@@ -366,7 +366,7 @@ def main():
                                     thisPoster.pdfname = link.geturl()
                                 continue
                             # take the first link ending in .mp4 or .mov to be the video
-                            if ((link.path[-4:].lower()=='.mp4') or (link.path[-4:].lower()=='.mov')):
+                            if ((link.path[-4:].lower()=='.mp4') or (link.path[-4:].lower()=='.mov') or (link.path[-4:].lower()=='.avi')):
                                 if (thisPoster.videoName):
                                     LogWarning("poster " + thisPoster.posterID + " has too many videos")
                                 else:
