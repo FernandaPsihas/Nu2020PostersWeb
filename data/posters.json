@@ -9786,6 +9786,27 @@
   "youtubeID": ""
 },
 {
+  "abstract": "https://indico.fnal.gov/event/19348/contributions/186718/contribution.pdf",
+  "authorName": "Erica Smith,Kelli Michaels",
+  "category": "bsm",
+  "collaboration": "NOvA",
+  "contestLink": "https://docs.google.com/forms/d/e/1FAIpQLSeSZc02g5bPzP-ishvKyRADUwqAy4h0FZe6zD44G-WfgbMEhA/viewform",
+  "filename": "img/posterPDF-541.png",
+  "miniAbstract": "Looking for neutrino tridents in the NOvA Near Detector",
+  "otherNames": "Erica Smith,Kelli Michaels",
+  "pdfname": "https://indico.fnal.gov/event/19348/contributions/186718/attachments/130070/158172/Michaels_Smith_tridents_NOvA_Neutrino2020.pdf",
+  "posterID": "541",
+  "posterTitle": "Neutrino Tridents in the NOvA Near Detector",
+  "presentLink": "https://nu2020-hubs.org/#/",
+  "session": "2",
+  "smallFilename": "img/posterPDF-541-sm.png",
+  "track": "reco",
+  "videoFileName": "",
+  "videoLink": "https://www.youtube.com/embed/ne7wTZ1AjG8",
+  "videoName": "",
+  "youtubeID": ""
+},
+{
   "abstract": "https://indico.fnal.gov/event/19348/contributions/186280/contribution.pdf",
   "authorName": "Morgan Askins",
   "category": "detect",
