@@ -137,26 +137,27 @@ def dealWithPdf(poster):
     imageName = "posterPDF-" + posterID + ".png"
     imageName_sm = "posterPDF-" + posterID + "-sm.png"
 
-    # grab it
-#    fetchError = fetchfile(url,pdfName)
-#    if (fetchError):
-#        print("fetchpdf error ",fetchError)
-#        exit(fetchError)
-    # got it ok
-    if (Debug):
-        print("got pdf ok")
+    if (not UploadVideos):
+        # grab it
+        fetchError = fetchfile(url,pdfName)
+        if (fetchError):
+            print("fetchpdf error ",fetchError)
+            exit(fetchError)
+        # got it ok
+        if (Debug):
+            print("got pdf ok")
 
-    # make pngs
-    cmd = "pdf/posterPdfToPng.sh " + pdfName
-    os.system(cmd)  # should check for error
-    # move image files to the right place
-    os.system("mv " + tmpdir + imageName + " " + imgdir)
-    os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
-    # delete pdf from tmpdir
-#    os.system("rm " + pdfName)
-    # fill values in the poster object
-    poster.filename = imgdir + imageName
-    poster.smallFilename = imgdir + imageName_sm
+        # make pngs
+        cmd = "pdf/posterPdfToPng.sh " + pdfName
+        os.system(cmd)  # should check for error
+        # move image files to the right place
+        os.system("mv " + tmpdir + imageName + " " + imgdir)
+        os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
+        # delete pdf from tmpdir
+ #       os.system("rm " + pdfName)
+        # fill values in the poster object
+        poster.filename = imgdir + imageName
+        poster.smallFilename = imgdir + imageName_sm
 
 
 def dealWithVideo(poster):
@@ -365,7 +366,7 @@ def main():
                                 else:
                                     thisPoster.pdfname = link.geturl()
                                 continue
-                            # take the first link ending in .mp4 or .mov to be the video
+                            # take the first link ending in .mp4 or .mov or avi to be the video
                             if ((link.path[-4:].lower()=='.mp4') or (link.path[-4:].lower()=='.mov') or (link.path[-4:].lower()=='.avi')):
                                 if (thisPoster.videoName):
                                     LogWarning("poster " + thisPoster.posterID + " has too many videos")
@@ -396,7 +397,7 @@ def main():
                     thisPoster.filename = DummyFilename
                     thisPoster.smallFilename = DummySmallFilename
 
-                thisPoster.videoLink = DummyVideo
+                if (not UploadVideos): thisPoster.videoLink = DummyVideo
                 # these just aren't in the json yet
                 thisPoster.contestLink = DummyContestLink
                 thisPoster.presentLink = DummyPresentLink
