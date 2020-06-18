@@ -169,10 +169,11 @@ def dealWithVideo(poster):
     # places to put stuff.  relative to index.html's subdir
     # eg, data/posterCsv2Json.py --verbose data/newdata.csv data/newdata.json
     filedir = "vid/"
+    videoFileNameOriginal = filedir + "posterVideoOriginal-" + posterID + "." + url.split('.')[-1]
     poster.videoFileName = filedir + "posterVideo-" + posterID + "." + url.split('.')[-1]
 
     # grab it
-    fetchError = fetchfile(url,poster.videoFileName)
+    fetchError = fetchfile(url,videoFileNameOriginal)
     if (fetchError):
         print("fetchfile error ",fetchError)
         exit(fetchError)
