@@ -463,9 +463,11 @@
             success: function(respose){
 	      posterList = respose;
 	      buildIndex(respose);
+	      // Apply any default session
+	      filterSession();
+	      // we've been passed a posterID.  
+	      // Need to find which index that corresponds to 
 	      if (posterID) {
-		// we've been passed a posterID.  
-		// Need to find which index that corresponds to 
 		var i=0;
 		var foundIndex = -1;
 		for (i=0; i<respose.length; i++)
@@ -503,9 +505,6 @@
 	const posterID = urlParams.get('posterID')
         // if there is no parameter, this will be null, which means random
 
-	// Load up the requested poster
-        LoadData(posterID);  
-
 	// if there's a default session, set the session search appropriately
 	var sessionSelect = document.getElementById('sessionSelect');
 	for(var i, j = 0; i = sessionSelect.options[j]; j++) {
@@ -515,8 +514,9 @@
             break;
           }
         }
-// need to also filter the index, for some reason the list isn't built yet?
-//	filterSession();
+
+	// Load up the requested poster
+        LoadData(posterID);  
 
       });
     </script>
