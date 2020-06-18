@@ -203,6 +203,7 @@ def dealWithVideo(poster):
             os.system('ffmpeg -i "concat:intro.ts|inputvideo.ts" -c copy ' + poster.videoFileName)
             print("removing old chunk")
             os.system("rm -r inputvideo.ts")
+            os.system("rm " + videoFileNameOriginal)
         else :
             print("Still not sure how to stich other formats... uploading as is.. ")
             os.system("mv "+videoFileNameOriginal +" "+poster.videoFileName)
