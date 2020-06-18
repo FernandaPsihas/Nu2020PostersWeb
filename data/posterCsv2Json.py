@@ -68,6 +68,8 @@ class Poster:                 # a poster data structure
         self.videoLink = ''
         self.videoName = ''
         self.videoFileName = ''
+        self.videoTitle = ''
+        self.videoDescription = ''
         self.presentLink = ''
         self.abstract = ''
         self.miniAbstract = ''
@@ -94,7 +96,9 @@ class Poster:                 # a poster data structure
             'posterTitle': self.posterTitle,
             'videoLink': self.videoLink,
             'videoName': self.videoName,
+            'videoTitle': self.videoTitle,
             'videoFileName': self.videoFileName,
+            'videoDescription': self.videoDescription,
             'presentLink': self.presentLink,
             'abstract': self.abstract,
             'miniAbstract': self.miniAbstract,
@@ -173,8 +177,15 @@ def dealWithVideo(poster):
     # places to put stuff.  relative to index.html's subdir
     # eg, data/posterCsv2Json.py --verbose data/newdata.csv data/newdata.json
     filedir = "vid/"
-    videoFileNameOriginal = filedir + "posterVideoOriginal-" + posterID + "." + url.split('.')[-1]
-    poster.videoFileName = filedir + "posterVideo-" + posterID + "." + url.split('.')[-1]
+    videoFileNameOriginal   = filedir + "posterVideoOriginal-" + posterID + "." + url.split('.')[-1]
+    poster.videoFileName    = filedir + "posterVideo-" + posterID + "." + url.split('.')[-1]
+    poster.videoTitle       = "Nu2020 #" + poster.posterID + ": " + poster.miniAbstract
+    poster.videoDescription = "This video summarizes poster contribution #" + poster.posterID + " to the The XXIX International Conference on Neutrino Physics and Astrophysics.\n \"" + poster.posterTitle + "\nAuthor(s): " + poster.otherNames + "\nSee poster abstract at " + poster.abstract + "\"\n\nLINKS\nNeutrino 2020 Poster Session Portal https://conferences.fnal.gov/nu2020/poster/\nConference Indico Page: https://indico.fnal.gov/event/19348"
+    print ("  -------------  ")
+    print ("  -------------  ")
+    print ( poster.videoTitle )
+    print ( poster.videoDescription )
+    print ("  -------------  ")
 
     # grab it
     if ( DownloadVideos ):
@@ -209,8 +220,10 @@ def initialize_upload(youtube, thisposter):
 #    tags = thisposter.keywords.split(',')
   body=dict(
     snippet=dict(
-      title='Nu2020 #{}: {}'.format(thisposter.posterID, thisposter.miniAbstract),
-      description = 'This video summarizes poster contribution #{}to the The XXIX International Conference on Neutrino Physics and Astrophysics.\n"{}"\nAuthor(s): {}\nSee poster abstract at {}\n\nLINKS\n\nNeutrino 2020 Poster Session Portal https://conferences.fnal.gov/nu2020/poster/\nConference Indico Page: https://indico.fnal.gov/event/19348\n'.format(thisposter.posterID, thisposter.posterTitle, thisposter.otherNames, thisposter.abstract),
+      title=thisposter.videoTitle,
+      #'Nu2020 #{}: {}'.format(thisposter.posterID, thisposter.miniAbstract),
+      description = thisposter.videoDescription,
+      #'This video summarizes poster contribution #{}to the The XXIX International Conference on Neutrino Physics and Astrophysics.\n"{}"\nAuthor(s): {}\nSee poster abstract at {}\n\nLINKS\n\nNeutrino 2020 Poster Session Portal https://conferences.fnal.gov/nu2020/poster/\nConference Indico Page: https://indico.fnal.gov/event/19348\n'.format(thisposter.posterID, thisposter.posterTitle, thisposter.otherNames, thisposter.abstract),
       tags=tags,
       categoryId=thisposter.category
     ),
@@ -414,7 +427,7 @@ def main():
                     thisPoster.smallFilename = DummySmallFilename
 
                 # if there's a video, then use the contest link
-                if (thisPoster.videoName): 
+                if (thisPoster.videoName):
                     # this isn't in the json yet
                     if (not UploadVideos): thisPoster.videoLink = DummyVideo
                     if (thisPoster.contestLink): LogWarning('Poster #'+thisPoster.posterID+' is in Session ' + thisPoster.session + ' contest')
