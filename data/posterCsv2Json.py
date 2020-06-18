@@ -200,7 +200,7 @@ def initialize_upload(youtube, thisposter):
       categoryId=thisposter.category
     ),
     status=dict(
-      privacyStatus="private"
+      privacyStatus="unlisted"
     )
   )
 
@@ -345,7 +345,7 @@ def main():
                 # pdf should be fetched, then pngs made
                 # store pdf locally or delete and point back to indico?
 
-                # don't mess with this field in test mode.  Otherwise, 
+                # don't mess with this field in test mode.  Otherwise,
                 # fill the json with placeholders
                 if (DownloadAnything):
                     # let's search that string for a pdf URL and save that
@@ -384,7 +384,7 @@ def main():
                         LogWarning("poster " + thisPoster.posterID + " has no pdf, skipping")
                         continue
 
-                    if ((thisPoster.videoName != "") and UploadVideos): 
+                    if ((thisPoster.videoName != "") and UploadVideos):
                         dealWithVideo(thisPoster)
                         if ( UploadVideos ):
                             try:
