@@ -130,29 +130,32 @@ def dealWithPdf(poster):
     # should make these runtime parameters
     tmpdir = "/nashome/h/habig/Nu2020PosterWeb/tmp/"
     imgdir = "img/"
-    pdfdir = "pdf"   # if we keep them.  Prob. leave on indico instead
+    pdfdir = "pdf/"   # if we keep them.  Prob. leave on indico instead
 
     # form image filenames
-    pdfName = tmpdir + "posterPDF-" + posterID + ".pdf"
+    #pdfName = tmpdir + "posterPDF-" + posterID + ".pdf"
+    pdfName = pdfdir + "posterPDF-" + posterID + ".pdf"
+    # put local pdf in there for the poster link
+    poster.pdfname = pdfName
     imageName = "posterPDF-" + posterID + ".png"
     imageName_sm = "posterPDF-" + posterID + "-sm.png"
 
     if (not UploadVideos):
         # grab it
-        fetchError = fetchfile(url,pdfName)
-        if (fetchError):
-            print("fetchpdf error ",fetchError)
-            exit(fetchError)
+#        fetchError = fetchfile(url,pdfName)
+#        if (fetchError):
+#            print("fetchpdf error ",fetchError)
+#            exit(fetchError)
         # got it ok
         if (Debug):
             print("got pdf ok")
 
         # make pngs
         cmd = "pdf/posterPdfToPng.sh " + pdfName
-        os.system(cmd)  # should check for error
+#        os.system(cmd)  # should check for error
         # move image files to the right place
-        os.system("mv " + tmpdir + imageName + " " + imgdir)
-        os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
+#        os.system("mv " + tmpdir + imageName + " " + imgdir)
+#        os.system("mv " + tmpdir + imageName_sm + " " + imgdir)
         # delete pdf from tmpdir
  #       os.system("rm " + pdfName)
         # fill values in the poster object
@@ -336,6 +339,7 @@ def main():
                 thisPoster.category = row[12] # was 11
                 thisPoster.abstract = row[13] # was 12
                 thisPoster.session = row[14]
+                thisPoster.contestLink = row[15]
 #                thisPoster.session = row[9][-1:]
 # for test, make session posterid % 4
 #                thisPoster.session = str((int(thisPoster.posterID) % 4) + 1)
@@ -397,10 +401,19 @@ def main():
                     thisPoster.filename = DummyFilename
                     thisPoster.smallFilename = DummySmallFilename
 
-                if (not UploadVideos): thisPoster.videoLink = DummyVideo
-                # these just aren't in the json yet
-                thisPoster.contestLink = DummyContestLink
+                # if there's a video, then use the contest link
+                if (thisPoster.videoName): 
+                    # this isn't in the json yet
+                    if (not UploadVideos): thisPoster.videoLink = DummyVideo
+                    if (thisPoster.contestLink): LogWarning('Poster #'+thisPoster.posterID+' is in Session ' + thisPoster.session + ' contest')
+                else:
+                    if (thisPoster.contestLink):
+                        LogWarning('Poster #'+thisPoster.posterID+' no video, removed from contest')
+                        thisPoster.contestLink = ""
+
+                # this isn't in the json yet
                 thisPoster.presentLink = DummyPresentLink
+
 
                 # write out and store the poster
                 posterList.append(thisPoster) # why?  dunno, could be handy
