@@ -193,9 +193,9 @@ def initialize_upload(youtube, thisposter):
 #    tags = thisposter.keywords.split(',')
   body=dict(
     snippet=dict(
-      title=thisposter.posterTitle,
-      description=thisposter.authorName,
-      # description = 'Poster by {}\n\n {}'.format(thisposter.authorName, thisposter.posterTitle)
+      title='Nu2020 #{}: {}'.format(thisposter.posterID, thisposter.miniAbstract),
+      #description=thisposter.authorName,
+      description = 'This video summarizes poster contribution #{}to the The XXIX International Conference on Neutrino Physics and Astrophysics.\n"{}"\nAuthor(s): {}\nSee poster abstract at {}\n\nLINKS\n\nNeutrino 2020 Poster Session Portal https://conferences.fnal.gov/nu2020/poster/\nConference Indico Page: https://indico.fnal.gov/event/19348\n'.format(thisposter.posterID, thisposter.posterTitle, thisposter.otherNames, thisposter.abstract),
       tags=tags,
       categoryId=thisposter.category
     ),
