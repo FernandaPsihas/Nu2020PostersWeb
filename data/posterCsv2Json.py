@@ -21,6 +21,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 Debug = True;
 Verbose = True;
 UploadVideos = False;
+DownloadVideos = False;
 Number = -1;
 
 DownloadAnything = True;
@@ -173,22 +174,24 @@ def dealWithVideo(poster):
     poster.videoFileName = filedir + "posterVideo-" + posterID + "." + url.split('.')[-1]
 
     # grab it
-    fetchError = fetchfile(url,videoFileNameOriginal)
-    if (fetchError):
-        print("fetchfile error ",fetchError)
-        exit(fetchError)
-    # got it ok
-    if (Debug):
-        print("got video ok")
-     # concatenate mp4 with nu2020 intro banner.. not sure how to do it with mov yet
-    if (url.split('.')[-1]=='mp4'):
-        print("this is an mp4 so cross fingers!")
-        os.system("ffmpeg -i " + videoFileNameOriginal + " -c copy -bsf:v h264_mp4toannexb -f mpegts inputvideo.ts")
-        os.system('ffmpeg -i "concat:intro.ts|inputvideo.ts" -c copy ' + poster.videoFileName)
-        #rm
-    else :
-        print("Still not sure how to stich other formats... uploading as is.. ")
-        os.system("mv "+videoFileNameOriginal +" "+poster.videoFileName)
+    if ( DownloadVideos ):
+        fetchError = fetchfile(url,videoFileNameOriginal)
+        if (fetchError):
+            print("fetchfile error ",fetchError)
+            exit(fetchError)
+            # got it ok
+        if (Debug):
+            print("got video ok")
+        # concatenate mp4 with nu2020 intro banner.. not sure how to do it with mov yet
+        if (url.split('.')[-1]=='mp4'):
+            print("this is an mp4 so cross fingers!")
+            os.system("ffmpeg -i " + videoFileNameOriginal + " -c copy -bsf:v h264_mp4toannexb -f mpegts inputvideo.ts")
+            os.system('ffmpeg -i "concat:intro.ts|inputvideo.ts" -c copy ' + poster.videoFileName)
+            print("removing old chunk")
+            os.system("rm -r inputvideo.ts")
+        else :
+            print("Still not sure how to stich other formats... uploading as is.. ")
+            os.system("mv "+videoFileNameOriginal +" "+poster.videoFileName)
 
 # UPLOAD FUNCTIONS #
 # Authorize the request and store authorization credentials.
@@ -393,7 +396,7 @@ def main():
                         LogWarning("poster " + thisPoster.posterID + " has no pdf, skipping")
                         continue
 
-                    if ((thisPoster.videoName != "") and UploadVideos):
+                    if (thisPoster.videoName != ""):
                         dealWithVideo(thisPoster)
                         if ( UploadVideos ):
                             try:
