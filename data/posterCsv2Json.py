@@ -414,8 +414,8 @@ def main():
                     thisPoster.filename = DummyFilename
                     thisPoster.smallFilename = DummySmallFilename
 
-                # if there's a video, then use the contest link
-                if (thisPoster.videoName): 
+                # if there's a video or youtube ID, then use the contest link
+                if ((thisPoster.videoName) or (thisPoster.youtubeID)): 
                     # this isn't in the json yet
                     if (not UploadVideos): 
                         if (thisPoster.youtubeID):
