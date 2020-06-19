@@ -18,8 +18,8 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-Debug = True;
-Verbose = True;
+Debug = False;
+Verbose = False;
 UploadVideos = False;
 DownloadVideos = False;
 Number = -1;
@@ -180,7 +180,7 @@ def dealWithVideo(poster):
     videoFileNameOriginal   = filedir + "posterVideoOriginal-" + posterID + "." + url.split('.')[-1]
     poster.videoFileName    = filedir + "posterVideo-" + posterID + "." + url.split('.')[-1]
     poster.videoTitle       = "Nu2020 #" + poster.posterID + ": " + poster.miniAbstract
-    poster.videoDescription = "This video summarizes poster contribution #" + poster.posterID + " to the The XXIX International Conference on Neutrino Physics and Astrophysics.\n \"" + poster.posterTitle + "\nAuthor(s): " + poster.otherNames + "\nSee poster abstract at " + poster.abstract + "\"\n\nLINKS\nNeutrino 2020 Poster Session Portal https://conferences.fnal.gov/nu2020/poster/\nConference Indico Page: https://indico.fnal.gov/event/19348"
+    poster.videoDescription = "This video summarizes poster contribution #" + poster.posterID + " to the XXIX International Conference on Neutrino Physics and Astrophysics.\nAuthor(s): " + poster.otherNames + "\n\"" + poster.posterTitle + "\nSee abstract at " + poster.abstract + "\"\n\nLINKS\nNeutrino 2020 Poster Session Portal https://conferences.fnal.gov/nu2020/poster/\nConference Indico: https://indico.fnal.gov/event/19348"
     print ("  -------------  ")
     print ("  -------------  ")
     print ( poster.videoTitle )
