@@ -21,6 +21,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 Debug = True;
 Verbose = True;
 UploadVideos = False;
+DownloadVideos = False;
 Number = -1;
 
 DownloadAnything = True;
@@ -172,16 +173,28 @@ def dealWithVideo(poster):
     # places to put stuff.  relative to index.html's subdir
     # eg, data/posterCsv2Json.py --verbose data/newdata.csv data/newdata.json
     filedir = "vid/"
+    videoFileNameOriginal = filedir + "posterVideoOriginal-" + posterID + "." + url.split('.')[-1]
     poster.videoFileName = filedir + "posterVideo-" + posterID + "." + url.split('.')[-1]
 
     # grab it
-    fetchError = fetchfile(url,poster.videoFileName)
-    if (fetchError):
-        print("fetchfile error ",fetchError)
-        exit(fetchError)
-    # got it ok
-    if (Debug):
-        print("got video ok")
+    if ( DownloadVideos ):
+        fetchError = fetchfile(url,videoFileNameOriginal)
+        if (fetchError):
+            print("fetchfile error ",fetchError)
+            exit(fetchError)
+            # got it ok
+        if (Debug):
+            print("got video ok")
+        # concatenate mp4 with nu2020 intro banner.. not sure how to do it with mov yet
+        if (url.split('.')[-1]=='mp4'):
+            print("this is an mp4 so cross fingers!")
+            os.system("ffmpeg -i " + videoFileNameOriginal + " -c copy -bsf:v h264_mp4toannexb -f mpegts inputvideo.ts")
+            os.system('ffmpeg -i "concat:intro.ts|inputvideo.ts" -c copy ' + poster.videoFileName)
+            print("removing old chunk")
+            os.system("rm -r inputvideo.ts")
+        else :
+            print("Still not sure how to stich other formats... uploading as is.. ")
+            os.system("mv "+videoFileNameOriginal +" "+poster.videoFileName)
 
 # UPLOAD FUNCTIONS #
 # Authorize the request and store authorization credentials.
@@ -196,14 +209,13 @@ def initialize_upload(youtube, thisposter):
 #    tags = thisposter.keywords.split(',')
   body=dict(
     snippet=dict(
-      title=thisposter.posterTitle,
-      description=thisposter.authorName,
-      # description = 'Poster by {}\n\n {}'.format(thisposter.authorName, thisposter.posterTitle)
+      title='Nu2020 #{}: {}'.format(thisposter.posterID, thisposter.miniAbstract),
+      description = 'This video summarizes poster contribution #{}to the The XXIX International Conference on Neutrino Physics and Astrophysics.\n"{}"\nAuthor(s): {}\nSee poster abstract at {}\n\nLINKS\n\nNeutrino 2020 Poster Session Portal https://conferences.fnal.gov/nu2020/poster/\nConference Indico Page: https://indico.fnal.gov/event/19348\n'.format(thisposter.posterID, thisposter.posterTitle, thisposter.otherNames, thisposter.abstract),
       tags=tags,
       categoryId=thisposter.category
     ),
     status=dict(
-      privacyStatus="private"
+      privacyStatus="unlisted"
     )
   )
 
@@ -350,7 +362,7 @@ def main():
                 # pdf should be fetched, then pngs made
                 # store pdf locally or delete and point back to indico?
 
-                # don't mess with this field in test mode.  Otherwise, 
+                # don't mess with this field in test mode.  Otherwise,
                 # fill the json with placeholders
                 if (DownloadAnything):
                     # let's search that string for a pdf URL and save that
@@ -389,7 +401,7 @@ def main():
                         LogWarning("poster " + thisPoster.posterID + " has no pdf, skipping")
                         continue
 
-                    if ((thisPoster.videoName != "") and UploadVideos): 
+                    if (thisPoster.videoName != ""):
                         dealWithVideo(thisPoster)
                         if ( UploadVideos ):
                             try:
