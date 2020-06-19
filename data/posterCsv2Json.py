@@ -244,7 +244,7 @@ def resumable_upload(request, thisposter):
 # this is the plain youtube webpage
 #          thisposter.videoLink="https://www.youtube.com/watch?v="+thisposter.youtubeID
 # this is the embed link we shove into the iframe alter
-          thisposter.videoLink="https://www.youtube.com/embed/"+thisposter.youtubeID
+          thisposter.videoLink="https://www.youtube.com/embed/"+thisPoster.youtubeID
         else:
           exit('The upload failed with an unexpected response: %s' % response)
     except (HttpError, e):
@@ -340,6 +340,7 @@ def main():
                 thisPoster.abstract = row[13] # was 12
                 thisPoster.session = row[14]
                 thisPoster.contestLink = row[15]
+                thisPoster.youtubeID = row[16]
 #                thisPoster.session = row[9][-1:]
 # for test, make session posterid % 4
 #                thisPoster.session = str((int(thisPoster.posterID) % 4) + 1)
@@ -404,7 +405,12 @@ def main():
                 # if there's a video, then use the contest link
                 if (thisPoster.videoName): 
                     # this isn't in the json yet
-                    if (not UploadVideos): thisPoster.videoLink = DummyVideo
+                    if (not UploadVideos): 
+                        if (thisPoster.youtubeID):
+                            thisPoster.videoLink = "https://www.youtube.com/embed/"+thisPoster.youtubeID
+                        else:
+                            thisPoster.videoLink = DummyVideo
+
                     if (thisPoster.contestLink): LogWarning('Poster #'+thisPoster.posterID+' is in Session ' + thisPoster.session + ' contest')
                 else:
                     if (thisPoster.contestLink):
