@@ -165,6 +165,9 @@
       // default session number
       var defaultSession = "1";
 
+      // show hubs link?
+      var hubsAreLive = 0;
+
       // Display a random thing in the array
       function DisplayRandomEVD(evds)
       {
@@ -208,7 +211,7 @@
 	var presentDiv = document.getElementById('presentLink').parentNode;
 	// if poster is not in the current session, don't use this link
 	if (currentEVD.session != defaultSession) currentEVD.presentLink = "";
-	if (currentEVD.presentLink == "") {
+	if ((currentEVD.presentLink == "") || (! hubsAreLive)){
 	  presentDiv.style.display = "none";
 	} else {
 	  presentDiv.style.display = "";
