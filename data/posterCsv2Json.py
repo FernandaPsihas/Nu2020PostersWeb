@@ -26,7 +26,7 @@ Number = -1;
 
 DownloadAnything = True;
 DummyPdfname = "pdf/mock_poster_2.pdf";
-DummyVideo = "https://www.youtube.com/embed/ne7wTZ1AjG8";
+DummyVideo = "https://www.youtube.com/embed/PbIzO0QzQ1o";
 DummyFilename = "img/mock_poster_2.png";
 DummySmallFilename = "img/mock_poster_2-sm.png";
 DummyContestLink = "https://docs.google.com/forms/d/e/1FAIpQLSeSZc02g5bPzP-ishvKyRADUwqAy4h0FZe6zD44G-WfgbMEhA/viewform";
