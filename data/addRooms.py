@@ -29,7 +29,7 @@ def main():
     Debug = options.Debug
     Number = options.Number
     if (len(args) != 3):
-        parser.error("Specify 2x input and 1x output files")
+        parser.error("Specify posterfile, roomfile,  and output files")
         sys.exit(1)
 
     # grab the first (and second) arguments as strings
