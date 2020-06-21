@@ -301,7 +301,60 @@
 <div id="content" class="site-content container-fluid">
     <div class="container-fluid main-content-area">
         <div class="row">
-            <div id="primary" class="content-area col-sm-12 col-md-9">
+
+                            <!-- YODA - Poster Sidebar Content in this div -->
+                            <div id="primary" class="content-area col-sm-12 col-md-4">
+                                <article id="post-51" class="post-51 page type-page status-publish hentry">
+                                    <header class="entry-header page-header" style="display: none">
+                                        <h1 class="entry-title">Home</h1>
+                                    </header><!-- .entry-header -->
+                                    <div class="entry-content">
+                                        <div class="nu-card">
+                                            <h2>Poster List</h2>
+                                            <div class="indexBox text-center border-left">
+                                              <p>
+                                                <button onclick="Cycle(true,0)">
+                                                      <i class="fas fa-sync-alt"></i> See a random poster
+                                                </button>
+                                              </p>
+
+                                              <!-- The actual index: html is built up by script buildIndex() -->
+                                              <h4><strong>Session Index</strong></h4>
+                                              <input type="text" id="indexInput" onkeyup="indexSearchFunction()" placeholder="Search for titles, presenters, or poster #">
+                                              <select id="sessionSelect" onclick="filterSession()">
+                                                <option value="0">All Sessions:</option>
+                                                <option value="1">Session 1</option>
+                                                <option value="2">Session 2</option>
+                                                <option value="3">Session 3</option>
+                                                <option value="4">Session 4</option>
+                                              </select>
+                                              <select id="trackSelect" onclick="filterTrack()">
+                                                <option value="0">All Categories:</option>
+                                                <option value="detect">&nu; Detectors</option>
+                                                <option value="lbl">Atmos. & Accel. &nu;</option>
+                                                <option value="react">Reactor & Solar &nu;</option>
+                                                <option value="bsm">BSM Physics & &nu;</option>
+                                                <option value="xsec">&nu; interactions</option>
+                                                <option value="2b">Double-&beta; Decay</option>
+                                                <option value="mass">&nu; Mass</option>
+                                                <option value="beams">&nu; Beams</option>
+                                                <option value="astro">Astrophysics</option>
+                                                <option value="cosmo">Cosmology</option>
+                                                <option value="geo">Geo &nu;</option>
+                                                <option value="osc">&nu; Oscillations</option>
+                                                <option value="dm">Dark Matter</option>
+                                                <option value="reco">Reco & Analysis</option>
+                                              </select>
+                                              <div id="posterIndex" style="padding-top: 20px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <!-- END YODA -->
+
+            <div id="primary" class="content-area col-sm-12 col-md-8">
                 <main id="main" class="site-main" role="main">
                     <article id="post-51" class="post-51 page type-page status-publish hentry">
                         <header class="entry-header page-header" style="display: none">
@@ -311,7 +364,7 @@
                               <style>
                                   .indexBox
                                   {
-                                    height:715px;
+                                    height:860px;
                                     /*width:33%;*/
                                     overflow:scroll;
                                     background-color:#f1f1f1;
@@ -380,59 +433,6 @@
 
                             </main><!-- #main -->
                             </div><!-- #primary -->
-
-                            <!-- YODA - Poster Sidebar Content in this div -->
-                            <div id="primary" class="content-area col-sm-12 col-md-3">
-                                <article id="post-51" class="post-51 page type-page status-publish hentry">
-                                    <header class="entry-header page-header" style="display: none">
-                                        <h1 class="entry-title">Home</h1>
-                                    </header><!-- .entry-header -->
-                                    <div class="entry-content">
-                                        <div class="nu-card">
-                                            <h2>Poster List</h2>
-                                            <div class="indexBox text-center border-left">
-                                              <p>
-                                                <button onclick="Cycle(true,0)">
-                                                      <i class="fas fa-sync-alt"></i> See a random poster
-                                                </button>
-                                              </p>
-
-                                              <!-- The actual index: html is built up by script buildIndex() -->
-                                              <h4><strong>Session Index</strong></h4>
-                                              <input type="text" id="indexInput" onkeyup="indexSearchFunction()" placeholder="Search for titles, presenters, or poster #">
-                                              <select id="sessionSelect" onclick="filterSession()">
-                                                <option value="0">All Sessions:</option>
-                                                <option value="1">Session 1</option>
-                                                <option value="2">Session 2</option>
-                                                <option value="3">Session 3</option>
-                                                <option value="4">Session 4</option>
-                                              </select>
-                                              <select id="trackSelect" onclick="filterTrack()">
-                                                <option value="0">All Categories:</option>
-                                                <option value="detect">&nu; Detectors</option>
-                                                <option value="lbl">Atmos. & Accel. &nu;</option>
-                                                <option value="react">Reactor & Solar &nu;</option>
-                                                <option value="bsm">BSM Physics & &nu;</option>
-                                                <option value="xsec">&nu; interactions</option>
-                                                <option value="2b">Double-&beta; Decay</option>
-                                                <option value="mass">&nu; Mass</option>
-                                                <option value="beams">&nu; Beams</option>
-                                                <option value="astro">Astrophysics</option>
-                                                <option value="cosmo">Cosmology</option>
-                                                <option value="geo">Geo &nu;</option>
-                                                <option value="osc">&nu; Oscillations</option>
-                                                <option value="dm">Dark Matter</option>
-                                                <option value="reco">Reco & Analysis</option>
-                                              </select>
-                                              <div id="posterIndex" style="padding-top: 20px;"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </article>
-                            </div>
-
-                            <!-- END YODA -->
-
 
                             <div id="secondary" class="widget-area col-sm-12 col-md-3" role="complementary" style="display: none;">
                                 <aside id="search-2" class="widget widget_search"><form method="get" class="form-search" action="https://conferences.fnal.gov/nu2020/">
@@ -721,7 +721,7 @@
                                   tippy.delegate('#posterIndex', {
                                 target: '.ajax-tippy',
                                 content: 'Loading...',
-                                placement: 'left',
+                                placement: 'right',
                                 maxWidth: '480',
                                 onCreate(instance) {
                                   // Setup our own custom state properties
