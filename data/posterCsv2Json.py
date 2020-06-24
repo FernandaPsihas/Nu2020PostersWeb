@@ -77,6 +77,8 @@ class Poster:                 # a poster data structure
         self.session = ''
         self.contestLink = ''
         self.youtubeID = ''
+        self.posterRoom = 0
+        self.posterNumber = 0
 
 #    def __repr__(self):
 #        return "<Test a:%s b:%s>" % (self.a, self.b)
@@ -105,7 +107,9 @@ class Poster:                 # a poster data structure
             'miniAbstract': self.miniAbstract,
             'session': self.session,
             'contestLink': self.contestLink,
-            'youtubeID':self.youtubeID
+            'youtubeID': self.youtubeID,
+            'posterRoom': self.posterRoom,
+            'posterNumber': self.posterNumber
             }, indent=2, sort_keys=True)
     # maybe add ensure_ascii=False to get unicode to come out ok
 
@@ -398,8 +402,8 @@ def main():
                                 else:
                                     thisPoster.pdfname = link.geturl()
                                 continue
-                            # take the first link ending in .mp4 or .mov or avi to be the video
-                            if ((link.path[-4:].lower()=='.mp4') or (link.path[-4:].lower()=='.mov') or (link.path[-4:].lower()=='.avi')):
+                            # take the first link ending in .mp4 or .mov or avi or wmv or webm or m4v to be the video
+                            if ((link.path[-4:].lower()=='.mp4') or (link.path[-4:].lower()=='.mov') or (link.path[-4:].lower()=='.avi') or (link.path[-4:].lower()=='.wmv') or (link.path[-4:].lower()=='.webm') or (link.path[-4:].lower()=='.m4v')):
                                 if (thisPoster.videoName):
                                     LogWarning("poster " + thisPoster.posterID + " has too many videos")
                                 else:

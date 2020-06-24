@@ -57,6 +57,8 @@ def main():
                     if (int(poster['posterID']) == room['poster_id']):
                         print("Poster #",poster['posterID']," has link ",room['room_link'])
                         poster['presentLink'] = room['room_link']
+                        poster['posterRoom'] = room['room_number']
+                        poster['posterNumber'] = room['local_poster_number']
                         found += 1
                         break
 
