@@ -568,7 +568,7 @@
                                   var posterList = [];
 
                                   // default session number
-                                  var defaultSession = "2";
+                                  var defaultSession = "4";
 
                                   // show hubs link?
                                   var hubsAreLive = 1;
@@ -613,20 +613,24 @@
                                     $('#posterID').html('Poster #' + currentEVD.posterID);
                                     $('img#poster').attr('src', currentEVD.filename);
                                     $('a#pdf').attr('href',currentEVD.pdfname);
-				    var numberString = '';
-				    if (currentEVD.posterNumber == 1) {
-				      numberString = ", first";
-				    } else if (currentEVD.posterNumber == 2) {
-				      numberString = ", second";
-				    } else if (currentEVD.posterNumber == 3) {
-				      numberString = " third";
-				    } else if (currentEVD.posterNumber == 4) {
-				      numberString = ", fourth";
-				    } else if (currentEVD.posterNumber == 5) {
-				      numberString = ", fifth";
+				    // if it's a zoom link
+				    if (currentEVD.presentLink.includes("zoom")) {
+				      $('#presentButton').html('Click to talk to presenter in zoom');
+				    } else {
+				      var numberString = '';
+				      if (currentEVD.posterNumber == 1) {
+				        numberString = ", first";
+				      } else if (currentEVD.posterNumber == 2) {
+				        numberString = ", second";
+				      } else if (currentEVD.posterNumber == 3) {
+				        numberString = " third";
+				      } else if (currentEVD.posterNumber == 4) {
+				        numberString = ", fourth";
+				      } else if (currentEVD.posterNumber == 5) {
+				        numberString = ", fifth";
+				      }
+				      $('#presentButton').html('Click to see this in VR Room ' + currentEVD.posterRoom + numberString+ ' poster');
 				    }
-
-				    $('#presentButton').html('Click to see this in VR Room ' + currentEVD.posterRoom + numberString+ ' poster');
                                 var presentDiv = document.getElementById('presentLink').parentNode;
                                 // if poster is not in the current session, don't use this link
                                 if (currentEVD.session != defaultSession) currentEVD.presentLink = "";
